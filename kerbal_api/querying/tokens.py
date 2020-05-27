@@ -36,14 +36,17 @@ def make_part_token(file_path: str) -> Optional[KerbalToken]:
 
     content: Dict[str, Any] = {
         "cfg_file_path": file_path,
-
         "internal_name": internal_name,
         "name": read_str(part_config, base_key + (("title", 0),)),
-        "manufacturer": read_str(part_config, base_key + (("manufacturer", 0),), default="N/A"),
+        "manufacturer": read_str(
+            part_config, base_key + (("manufacturer", 0),), default="N/A"
+        ),
         "cost": read_int(part_config, base_key + (("cost", 0),)),
         "dry_mass": read_float(part_config, base_key + (("mass", 0),)),
         "crash_tolerance": read_float(part_config, base_key + (("crashTolerance", 0),)),
-        "max_temp_tolerance": read_float(part_config, base_key + (("maxTemp", 0),), default=1200.0),
+        "max_temp_tolerance": read_float(
+            part_config, base_key + (("maxTemp", 0),), default=1200.0
+        ),
     }
 
     return KerbalToken(type_name, content)

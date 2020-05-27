@@ -42,7 +42,9 @@ directive @macro_edge on FIELD_DEFINITION
 directive @stitch(source_field: String!, sink_field: String!) on FIELD_DEFINITION
 """
 
-KSP_SCHEMA_TEXT = SCHEMA_BASE + """
+KSP_SCHEMA_TEXT = (
+    SCHEMA_BASE
+    + """
 
 type Part {
     cfg_file_path: String
@@ -70,5 +72,6 @@ type RootSchemaQuery {
     Part: [Part]
 }
 """
+)
 
 KSP_SCHEMA = build_ast_schema(parse(KSP_SCHEMA_TEXT))

@@ -5,6 +5,8 @@ import re
 # This pattern matches localized values, extracting:
 # - the tag value, under group name "tag"
 # - the English text, under group name "english"
-localization_pattern = re.compile(r"(?P<tag>#autoLOC_\d+)\s+//(?:\s*\1\s*=)?(?P<english>.*)")
+localization_pattern = re.compile(
+    r"(?P<tag>#autoLOC_\d+)\s+//(?:\s*\1\s*=)?(?P<english>.*)"
+)
 
 comment_sequence = "//"

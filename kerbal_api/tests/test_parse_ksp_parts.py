@@ -55,6 +55,7 @@ class KSPPartParsing(unittest.TestCase):
                 non_part_files.append(file_path)
 
         self.assertLess(
-            len(non_part_files), 25,
+            len(non_part_files),
+            25,
             msg=f"Expected a small-ish list of files (<25), but got {non_part_files}",
         )

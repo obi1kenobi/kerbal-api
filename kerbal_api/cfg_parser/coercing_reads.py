@@ -4,7 +4,7 @@ from .constants import comment_sequence, localization_pattern
 
 
 def read_raw(
-    config_data: Dict[Tuple[Tuple[str, int], ...], Any], 
+    config_data: Dict[Tuple[Tuple[str, int], ...], Any],
     path: Tuple[Tuple[str, int], ...],
 ) -> Optional[str]:
     raw_value = config_data.get(path, None)
@@ -12,13 +12,13 @@ def read_raw(
         return None
 
     if comment_sequence in raw_value:
-        raw_value = raw_value.split(comment_sequence, 1)[0] 
-        
+        raw_value = raw_value.split(comment_sequence, 1)[0]
+
     return raw_value
 
 
 def read_float(
-    config_data: Dict[Tuple[Tuple[str, int], ...], Any], 
+    config_data: Dict[Tuple[Tuple[str, int], ...], Any],
     path: Tuple[Tuple[str, int], ...],
     *,
     default: Optional[float] = None,
@@ -29,12 +29,12 @@ def read_float(
             raise KeyError(path)
         else:
             return default
-        
+
     return float(raw_value)
 
 
 def read_int(
-    config_data: Dict[Tuple[Tuple[str, int], ...], Any], 
+    config_data: Dict[Tuple[Tuple[str, int], ...], Any],
     path: Tuple[Tuple[str, int], ...],
     *,
     default: Optional[int] = None,
@@ -45,12 +45,12 @@ def read_int(
             raise KeyError(path)
         else:
             return default
-        
+
     return int(raw_value)
 
 
 def read_bool(
-    config_data: Dict[Tuple[Tuple[str, int], ...], Any], 
+    config_data: Dict[Tuple[Tuple[str, int], ...], Any],
     path: Tuple[Tuple[str, int], ...],
     *,
     default: Optional[bool] = None,
@@ -61,17 +61,19 @@ def read_bool(
             raise KeyError(path)
         else:
             return default
-    
+
     if raw_value == "True":
         return True
     elif raw_value == "False":
         return False
-    
-    raise AssertionError(f"Unexpected value '{raw_value}' for expected boolean at path {path}")
-    
-    
+
+    raise AssertionError(
+        f"Unexpected value '{raw_value}' for expected boolean at path {path}"
+    )
+
+
 def read_str(
-    config_data: Dict[Tuple[Tuple[str, int], ...], Any], 
+    config_data: Dict[Tuple[Tuple[str, int], ...], Any],
     path: Tuple[Tuple[str, int], ...],
     *,
     default: Optional[str] = None,
@@ -84,7 +86,7 @@ def read_str(
             raise KeyError(path)
         else:
             return default
-        
+
     if raw_value.startswith("#autoLOC"):
         match = localization_pattern.match(raw_value)
         if match is None:

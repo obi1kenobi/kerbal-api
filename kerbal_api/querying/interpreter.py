@@ -14,9 +14,7 @@ class KerbalDataAdapter(InterpreterAdapter[KerbalToken]):
         self.ksp_install_path = ksp_install_path
 
     def get_tokens_of_type(
-        self,
-        type_name: str,
-        **hints: Dict[str, Any],
+        self, type_name: str, **hints: Dict[str, Any],
     ) -> Iterable[KerbalToken]:
         if type_name == "Part":
             for cfg_file in get_ksp_part_cfg_files(self.ksp_install_path):

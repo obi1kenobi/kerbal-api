@@ -7,14 +7,12 @@ from .constants import comment_sequence
 # TODO: use a proper parsing library to create a "real" parser,
 #       instead of this hacked-together monstrosity.
 
+
 def load_part_config_from_cfg_file(
-    file_path: str
+    file_path: str,
 ) -> Optional[Dict[Tuple[Tuple[str, int], ...], Any]]:
     with open(file_path, "r") as f:
-        lines: List[str] = [
-            raw_line.strip()
-            for raw_line in f
-        ]
+        lines: List[str] = [raw_line.strip() for raw_line in f]
 
     if not lines:
         return None
@@ -47,10 +45,7 @@ def load_part_config_from_cfg_file(
             # Comment line, ignore.
             continue
         if "=" in line:
-            components = [
-                component.strip()
-                for component in line.split("=", 1)
-            ]
+            components = [component.strip() for component in line.split("=", 1)]
             key, value = components
 
             counter = 0
@@ -115,7 +110,9 @@ def load_part_config_from_cfg_file(
             while fully_qualified_section_name in visited_sections:
                 counter += 1
                 section_key = (section_name, counter)
-                fully_qualified_section_name = tuple(current_section) + tuple(section_key,)
+                fully_qualified_section_name = tuple(current_section) + tuple(
+                    section_key,
+                )
 
             visited_sections.add(fully_qualified_section_name)
             current_section.append(section_key)

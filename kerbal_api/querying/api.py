@@ -13,9 +13,7 @@ def get_default_adapter() -> KerbalDataAdapter:
 
 
 def execute_query(
-    adapter: KerbalDataAdapter,
-    query: str,
-    args: Dict[str, Any],
+    adapter: KerbalDataAdapter, query: str, args: Dict[str, Any],
 ) -> Iterable[Dict[str, Any]]:
     ir_and_metadata = graphql_to_ir(KSP_SCHEMA, query)
     return interpret_ir(adapter, ir_and_metadata, args)
