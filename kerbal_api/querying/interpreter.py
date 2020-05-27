@@ -1,9 +1,8 @@
 from typing import Any, Dict, Iterable, Tuple
 
-from graphql_compiler.interpreter import DataContext, DataToken, InterpreterAdapter
+from graphql_compiler.interpreter import DataContext, InterpreterAdapter
 
 from ..cfg_parser.file_finder import get_ksp_part_cfg_files
-from .schema import KSP_SCHEMA
 from .tokens import KerbalToken, make_part_token
 
 
