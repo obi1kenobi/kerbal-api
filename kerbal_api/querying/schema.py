@@ -1,0 +1,74 @@
+from graphql import parse, build_ast_schema
+
+# TODO: Grab these definitions directly from the GraphQL compiler package instead.
+SCHEMA_BASE = """
+schema {
+    query: RootSchemaQuery
+}
+
+directive @filter(
+    \"\"\"Name of the filter operation to perform.\"\"\"
+    op_name: String!
+    \"\"\"List of string operands for the operator.\"\"\"
+    value: [String!]
+) repeatable on FIELD | INLINE_FRAGMENT
+
+directive @tag(
+    \"\"\"Name to apply to the given property field.\"\"\"
+    tag_name: String!
+) on FIELD
+
+directive @output(
+    \"\"\"What to designate the output field generated from this property field.\"\"\"
+    out_name: String!
+) on FIELD
+
+directive @output_source on FIELD
+
+directive @optional on FIELD
+
+directive @recurse(
+    \"\"\"
+    Recurse up to this many times on this edge. A depth of 1 produces the current
+    vertex and its immediate neighbors along the given edge.
+    \"\"\"
+    depth: Int!
+) on FIELD
+
+directive @fold on FIELD
+
+directive @macro_edge on FIELD_DEFINITION
+
+directive @stitch(source_field: String!, sink_field: String!) on FIELD_DEFINITION
+"""
+
+KSP_SCHEMA_TEXT = SCHEMA_BASE + """
+
+type Part {
+    cfg_file_path: String
+    internal_name: String
+    name: String
+    manufacturer: String
+    description: String
+    cost: Int
+    dry_mass: Float
+    crash_tolerance: Float  # expressed in m/s
+    max_temp_tolerance: Float  # expressed in Kelvin, part explodes if above this temp
+
+    out_Part_EngineModule: [EngineModule]
+}
+
+type EngineModule {
+    min_thrust: Float
+    max_thrust: Float
+    throttleable: Boolean  # e.g., solid boosters cannot be throttled down
+    isp_vacuum: Float
+    isp_at_1atm: Float
+}
+
+type RootSchemaQuery {
+    Part: [Part]
+}
+"""
+
+KSP_SCHEMA = build_ast_schema(parse(KSP_SCHEMA_TEXT))
