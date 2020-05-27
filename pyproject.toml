@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "kerbal-api"
+version = "0.0.1"
+description = "Programmatically querying Kerbal Space Program information, such as part characteristics"
+authors = ["Predrag Gruevski"]
+license = "MIT"
+
+[tool.poetry.dependencies]
+python = "^3.8"
+graphql-compiler = {git = "https://github.com/kensho-technologies/graphql-compiler", rev = "interpreted_mode_v2_with_type_names"}
+
+[tool.poetry.dev-dependencies]
+jupyterlab = "^2.1.3"
+pytest = "^5.4.2"
+
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"
