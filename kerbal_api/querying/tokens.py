@@ -1,8 +1,8 @@
 from dataclasses import dataclass
 from typing import Any, Dict, Optional, Set
 
-from ..cfg_parser.parser import load_part_config_from_cfg_file
 from ..cfg_parser.coercing_reads import read_float, read_int, read_str
+from ..cfg_parser.parser import load_part_config_from_cfg_file
 
 
 @dataclass

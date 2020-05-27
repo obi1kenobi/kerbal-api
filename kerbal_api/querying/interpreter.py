@@ -1,6 +1,6 @@
 from typing import Any, Dict, Iterable, Tuple
 
-from graphql_compiler.interpreter import InterpreterAdapter, DataContext, DataToken
+from graphql_compiler.interpreter import DataContext, DataToken, InterpreterAdapter
 
 from ..cfg_parser.file_finder import get_ksp_part_cfg_files
 from .schema import KSP_SCHEMA

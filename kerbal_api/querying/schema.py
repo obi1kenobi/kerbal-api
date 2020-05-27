@@ -1,4 +1,5 @@
-from graphql import parse, build_ast_schema
+from graphql import build_ast_schema, parse
+
 
 # TODO: Grab these definitions directly from the GraphQL compiler package instead.
 SCHEMA_BASE = """

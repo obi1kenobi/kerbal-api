@@ -1,5 +1,6 @@
 import re
 
+
 # Localization tags of the form "#autoLOC_123456" are generally followed by a comment
 # that may include the same localization tag and an "=" sign, followed by the English text.
 # This pattern matches localized values, extracting:
