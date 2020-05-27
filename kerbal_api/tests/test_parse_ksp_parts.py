@@ -1,5 +1,6 @@
 from itertools import chain
 import os
+from typing import List
 import unittest
 
 from ..cfg_parser.file_finder import get_cfg_files_recursively

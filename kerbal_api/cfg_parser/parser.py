@@ -26,7 +26,7 @@ def load_part_config_from_cfg_file(
         # Not a part file, ignore.
         return None
 
-    visited_sections: Set[Tuple[str, int]] = set()
+    visited_sections: Set[Tuple[Tuple[str, int], ...]] = set()
     current_section: List[Tuple[str, int]] = []
     data: Dict[Tuple[Tuple[str, int], ...], Any] = {}
 
@@ -106,7 +106,9 @@ def load_part_config_from_cfg_file(
             counter = 0
 
             section_key = (section_name, counter)
-            fully_qualified_section_name = tuple(current_section) + tuple(section_key,)
+            fully_qualified_section_name: Tuple[Tuple[str, int], ...] = (
+                tuple(current_section) + tuple(section_key,)
+            )
             while fully_qualified_section_name in visited_sections:
                 counter += 1
                 section_key = (section_name, counter)
