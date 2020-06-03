@@ -1,12 +1,10 @@
-from typing import Any, Dict, Optional, Tuple
+from typing import Optional
 
 from .constants import comment_sequence, localization_pattern
+from .typedefs import CfgKey, ParsedCfgFile
 
 
-def read_raw(
-    config_data: Dict[Tuple[Tuple[str, int], ...], Any],
-    path: Tuple[Tuple[str, int], ...],
-) -> Optional[str]:
+def read_raw(config_data: ParsedCfgFile, path: CfgKey,) -> Optional[str]:
     raw_value = config_data.get(path, None)
     if raw_value is None:
         return None
@@ -18,10 +16,7 @@ def read_raw(
 
 
 def read_float(
-    config_data: Dict[Tuple[Tuple[str, int], ...], Any],
-    path: Tuple[Tuple[str, int], ...],
-    *,
-    default: Optional[float] = None,
+    config_data: ParsedCfgFile, path: CfgKey, *, default: Optional[float] = None,
 ) -> float:
     raw_value = read_raw(config_data, path)
     if raw_value is None:
@@ -34,10 +29,7 @@ def read_float(
 
 
 def read_int(
-    config_data: Dict[Tuple[Tuple[str, int], ...], Any],
-    path: Tuple[Tuple[str, int], ...],
-    *,
-    default: Optional[int] = None,
+    config_data: ParsedCfgFile, path: CfgKey, *, default: Optional[int] = None,
 ) -> int:
     raw_value = read_raw(config_data, path)
     if raw_value is None:
@@ -50,10 +42,7 @@ def read_int(
 
 
 def read_bool(
-    config_data: Dict[Tuple[Tuple[str, int], ...], Any],
-    path: Tuple[Tuple[str, int], ...],
-    *,
-    default: Optional[bool] = None,
+    config_data: ParsedCfgFile, path: CfgKey, *, default: Optional[bool] = None,
 ) -> bool:
     raw_value = read_raw(config_data, path)
     if raw_value is None:
@@ -73,10 +62,7 @@ def read_bool(
 
 
 def read_str(
-    config_data: Dict[Tuple[Tuple[str, int], ...], Any],
-    path: Tuple[Tuple[str, int], ...],
-    *,
-    default: Optional[str] = None,
+    config_data: ParsedCfgFile, path: CfgKey, *, default: Optional[str] = None,
 ) -> str:
     # N.B.: The string localization data stores the English string in a comment section.
     #       Do not use the regular read_raw() function, since that will strip the comment!

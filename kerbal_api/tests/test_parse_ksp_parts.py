@@ -51,9 +51,13 @@ class KSPPartParsing(unittest.TestCase):
             get_cfg_files_recursively(self.expansions_dir_path),
         )
         for file_path in all_stock_cfg_files:
-            part_token = make_part_token(file_path)
-            if part_token is None:
+            part_config = load_part_config_from_cfg_file(file_path)
+            if part_config is None:
                 non_part_files.append(file_path)
+            else:
+                part_token = make_part_token(file_path, part_config)
+                if part_token is None:
+                    non_part_files.append(file_path)
 
         self.assertLess(
             len(non_part_files),

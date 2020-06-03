@@ -1,16 +1,15 @@
 import string
-from typing import Any, Dict, List, Optional, Set, Tuple
+from typing import List, Optional, Set, Tuple
 
 from .constants import comment_sequence
+from .typedefs import CfgKey, ParsedCfgFile
 
 
 # TODO: use a proper parsing library to create a "real" parser,
 #       instead of this hacked-together monstrosity.
 
 
-def load_part_config_from_cfg_file(
-    file_path: str,
-) -> Optional[Dict[Tuple[Tuple[str, int], ...], Any]]:
+def load_part_config_from_cfg_file(file_path: str,) -> Optional[ParsedCfgFile]:
     with open(file_path, "r") as f:
         lines: List[str] = [raw_line.strip() for raw_line in f]
 
@@ -26,9 +25,9 @@ def load_part_config_from_cfg_file(
         # Not a part file, ignore.
         return None
 
-    visited_sections: Set[Tuple[Tuple[str, int], ...]] = set()
+    visited_sections: Set[CfgKey] = set()
     current_section: List[Tuple[str, int]] = []
-    data: Dict[Tuple[Tuple[str, int], ...], Any] = {}
+    data: ParsedCfgFile = {}
 
     expected_section_name_chars = set(string.ascii_letters) | set(string.digits) | {"_"}
     section_like_exceptions = {

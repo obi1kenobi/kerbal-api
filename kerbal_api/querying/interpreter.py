@@ -2,24 +2,23 @@ from typing import Any, Dict, Iterable, Tuple
 
 from graphql_compiler.interpreter import DataContext, InterpreterAdapter
 
-from ..cfg_parser.file_finder import get_ksp_part_cfg_files
-from .tokens import KerbalToken, make_part_token
+from .data_manager import KerbalDataManager
+from .tokens import KerbalToken
 
 
 class KerbalDataAdapter(InterpreterAdapter[KerbalToken]):
     ksp_install_path: str
+    data_manager: KerbalDataManager
 
     def __init__(self, ksp_install_path: str) -> None:
         self.ksp_install_path = ksp_install_path
+        self.data_manager = KerbalDataManager.from_ksp_install_path(ksp_install_path)
 
     def get_tokens_of_type(
         self, type_name: str, **hints: Dict[str, Any],
     ) -> Iterable[KerbalToken]:
         if type_name == "Part":
-            for cfg_file in get_ksp_part_cfg_files(self.ksp_install_path):
-                part_token = make_part_token(cfg_file)
-                if part_token is not None:
-                    yield part_token
+            return self.data_manager.parts
         else:
             raise NotImplementedError()
 
