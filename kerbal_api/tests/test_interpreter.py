@@ -5,10 +5,7 @@ from ..querying import execute_query, get_default_adapter
 
 
 def ensure_query_produces_expected_output(
-    test_case: TestCase,
-    query: str,
-    args: Dict[str, Any],
-    expected_results: List[Dict[str, Any]],
+    test_case: TestCase, query: str, args: Dict[str, Any], expected_results: List[Dict[str, Any]],
 ) -> None:
     # The interpreter's output isn't ordered in any particular way, so this helper function
     # implements order-agnostic output comparisons.
@@ -46,11 +43,7 @@ class TestInterpreter(TestCase):
                 "internal_name": "Clydesdale",
                 "dry_mass": 21.0,
             },
-            {
-                "part_name": "A potato like rock",
-                "internal_name": "PotatoRoid",
-                "dry_mass": 150.0,
-            },
+            {"part_name": "A potato like rock", "internal_name": "PotatoRoid", "dry_mass": 150.0,},
             {
                 "part_name": "Kerbodyne S4-512 Fuel Tank",
                 "internal_name": "Size4_Tank_04",

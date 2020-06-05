@@ -86,9 +86,7 @@ def load_part_config_from_cfg_file(file_path: str,) -> Optional[ParsedCfgFile]:
                         )
 
                 peek_next_line = (
-                    lines[next_nonempty_line_index]
-                    if next_nonempty_line_index < line_count
-                    else ""
+                    lines[next_nonempty_line_index] if next_nonempty_line_index < line_count else ""
                 )
                 if peek_next_line != "{":
                     raise AssertionError(
@@ -111,9 +109,7 @@ def load_part_config_from_cfg_file(file_path: str,) -> Optional[ParsedCfgFile]:
             while fully_qualified_section_name in visited_sections:
                 counter += 1
                 section_key = (section_name, counter)
-                fully_qualified_section_name = tuple(current_section) + tuple(
-                    section_key,
-                )
+                fully_qualified_section_name = tuple(current_section) + tuple(section_key,)
 
             visited_sections.add(fully_qualified_section_name)
             current_section.append(section_key)

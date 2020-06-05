@@ -28,9 +28,7 @@ def read_float(
     return float(raw_value)
 
 
-def read_int(
-    config_data: ParsedCfgFile, path: CfgKey, *, default: Optional[int] = None,
-) -> int:
+def read_int(config_data: ParsedCfgFile, path: CfgKey, *, default: Optional[int] = None,) -> int:
     raw_value = read_raw(config_data, path)
     if raw_value is None:
         if default is None:
@@ -41,9 +39,7 @@ def read_int(
     return int(raw_value)
 
 
-def read_bool(
-    config_data: ParsedCfgFile, path: CfgKey, *, default: Optional[bool] = None,
-) -> bool:
+def read_bool(config_data: ParsedCfgFile, path: CfgKey, *, default: Optional[bool] = None,) -> bool:
     raw_value = read_raw(config_data, path)
     if raw_value is None:
         if default is None:
@@ -56,14 +52,10 @@ def read_bool(
     elif raw_value == "False":
         return False
 
-    raise AssertionError(
-        f"Unexpected value '{raw_value}' for expected boolean at path {path}"
-    )
+    raise AssertionError(f"Unexpected value '{raw_value}' for expected boolean at path {path}")
 
 
-def read_str(
-    config_data: ParsedCfgFile, path: CfgKey, *, default: Optional[str] = None,
-) -> str:
+def read_str(config_data: ParsedCfgFile, path: CfgKey, *, default: Optional[str] = None,) -> str:
     # N.B.: The string localization data stores the English string in a comment section.
     #       Do not use the regular read_raw() function, since that will strip the comment!
     raw_value = config_data.get(path, default)

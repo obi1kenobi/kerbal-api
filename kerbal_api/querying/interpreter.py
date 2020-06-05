@@ -14,9 +14,7 @@ class KerbalDataAdapter(InterpreterAdapter[KerbalToken]):
         self.ksp_install_path = ksp_install_path
         self.data_manager = KerbalDataManager.from_ksp_install_path(ksp_install_path)
 
-    def get_tokens_of_type(
-        self, type_name: str, **hints: Dict[str, Any],
-    ) -> Iterable[KerbalToken]:
+    def get_tokens_of_type(self, type_name: str, **hints: Dict[str, Any],) -> Iterable[KerbalToken]:
         if type_name == "Part":
             return self.data_manager.parts
         else:

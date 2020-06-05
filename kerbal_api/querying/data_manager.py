@@ -38,12 +38,8 @@ class KerbalDataManager:
 
     # Part data management
     parts: List[KerbalToken]  # authoritative list of all known parts
-    parts_by_cfg_file_path: Dict[
-        str, KerbalToken
-    ]  # index of parts by origin config file path
-    parts_by_name: Dict[
-        str, List[KerbalToken]
-    ]  # index of parts by display name, not unique
+    parts_by_cfg_file_path: Dict[str, KerbalToken]  # index of parts by origin config file path
+    parts_by_name: Dict[str, List[KerbalToken]]  # index of parts by display name, not unique
     parts_by_internal_name: Dict[
         str, List[KerbalToken]
     ]  # index of parts by internal name, not unique
@@ -83,10 +79,6 @@ class KerbalDataManager:
             part_internal_name = part_token.content["internal_name"]
 
             self.parts.append(part_token)
-            _set_without_overwriting(
-                self.parts_by_cfg_file_path, canonicalized_path, part_token
-            )
-            self.parts_by_internal_name.setdefault(part_internal_name, []).append(
-                part_token
-            )
+            _set_without_overwriting(self.parts_by_cfg_file_path, canonicalized_path, part_token)
+            self.parts_by_internal_name.setdefault(part_internal_name, []).append(part_token)
             self.parts_by_name.setdefault(part_name, []).append(part_token)
