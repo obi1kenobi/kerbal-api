@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from typing import Any, Dict, Optional, Set
 
 from ..cfg_parser.coercing_reads import read_float, read_int, read_str
-from ..cfg_parser.typedefs import ParsedCfgFile
+from ..cfg_parser.typedefs import CfgKey, ParsedCfgFile
 
 
 @dataclass
@@ -11,7 +11,13 @@ class KerbalToken:
     content: Dict[str, Any]
 
 
-def make_part_token(cfg_file_path: str, part_config: ParsedCfgFile) -> Optional[KerbalToken]:
+@dataclass
+class KerbalConfigToken(KerbalToken):
+    from_cfg_file_path: str
+    from_cfg_root: CfgKey
+
+
+def make_part_token(cfg_file_path: str, part_config: ParsedCfgFile) -> Optional[KerbalConfigToken]:
     type_name = "Part"
 
     base_key = (("PART", 0),)
@@ -41,4 +47,4 @@ def make_part_token(cfg_file_path: str, part_config: ParsedCfgFile) -> Optional[
         "max_temp_tolerance": read_float(part_config, base_key + (("maxTemp", 0),), default=1200.0),
     }
 
-    return KerbalToken(type_name, content)
+    return KerbalConfigToken(type_name, content, cfg_file_path, base_key)

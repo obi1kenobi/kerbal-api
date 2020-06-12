@@ -1,8 +1,9 @@
 from typing import Any, Dict, Iterable, Tuple
 
 from graphql_compiler.interpreter import DataContext, InterpreterAdapter
+from graphql_compiler.interpreter.typedefs import EdgeInfo
 
-from .data_manager import KerbalDataManager
+from .data_manager import KerbalDataManager, get_engine_modules_for_part
 from .tokens import KerbalToken
 
 
@@ -14,7 +15,7 @@ class KerbalDataAdapter(InterpreterAdapter[KerbalToken]):
         self.ksp_install_path = ksp_install_path
         self.data_manager = KerbalDataManager.from_ksp_install_path(ksp_install_path)
 
-    def get_tokens_of_type(self, type_name: str, **hints: Dict[str, Any],) -> Iterable[KerbalToken]:
+    def get_tokens_of_type(self, type_name: str, **hints: Dict[str, Any]) -> Iterable[KerbalToken]:
         if type_name == "Part":
             return self.data_manager.parts
         else:
@@ -39,11 +40,20 @@ class KerbalDataAdapter(InterpreterAdapter[KerbalToken]):
         self,
         data_contexts: Iterable[DataContext[KerbalToken]],
         current_type_name: str,
-        direction: str,
-        edge_name: str,
+        edge_info: EdgeInfo,
         **hints: Dict[str, Any],
     ) -> Iterable[Tuple[DataContext[KerbalToken], Iterable[KerbalToken]]]:
-        raise NotImplementedError()
+        for data_context in data_contexts:
+            token = data_context.current_token
+
+            if token is None:
+                yield (data_context, [])
+                continue
+
+            if (current_type_name, edge_info) == ("Part", ("out", "Part_EngineModule")):
+                yield (data_context, get_engine_modules_for_part(self.data_manager, token))
+            else:
+                raise NotImplementedError()
 
     def can_coerce_to_type(
         self,

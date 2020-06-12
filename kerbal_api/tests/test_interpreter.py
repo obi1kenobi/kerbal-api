@@ -93,3 +93,47 @@ class TestInterpreter(TestCase):
         ]
 
         ensure_query_produces_expected_output(self, query, args, expected_results)
+
+    def test_engine_part_edge_traversal(self) -> None:
+        query = """
+        {
+            Part {
+                internal_name @filter(op_name: "=", value: ["$internal_name"])
+                cost @output(out_name: "part_cost")
+                dry_mass @output(out_name: "part_dry_mass")
+
+                out_Part_EngineModule {
+                    min_thrust @output(out_name: "min_thrust")
+                    max_thrust @output(out_name: "max_thrust")
+                    throttleable @output(out_name: "throttleable")
+                    isp_vacuum @output(out_name: "isp_vacuum")
+                    isp_at_1atm @output(out_name: "isp_at_1atm")
+                }
+            }
+        }
+        """
+        args: Dict[str, Any] = {"internal_name": "RAPIER"}
+
+        # The RAPIER engine has two engine modes, and therefore two engine modules.
+        expected_results = [
+            {
+                "part_cost": 6000,
+                "part_dry_mass": 2.0,
+                "min_thrust": 0.0,
+                "max_thrust": 105.0,
+                "throttleable": True,
+                "isp_vacuum": 3200.0,
+                "isp_at_1atm": None,
+            },
+            {
+                "part_cost": 6000,
+                "part_dry_mass": 2.0,
+                "min_thrust": 0.0,
+                "max_thrust": 180.0,
+                "throttleable": True,
+                "isp_vacuum": 305.0,
+                "isp_at_1atm": 275.0,
+            },
+        ]
+
+        ensure_query_produces_expected_output(self, query, args, expected_results)
