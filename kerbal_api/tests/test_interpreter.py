@@ -137,3 +137,37 @@ class TestInterpreter(TestCase):
         ]
 
         ensure_query_produces_expected_output(self, query, args, expected_results)
+
+    def test_contained_resource_traversal(self) -> None:
+        query = """
+        {
+            Part {
+                internal_name @filter(op_name: "=", value: ["$internal_name"])
+                name @output(out_name: "part_name")
+
+                out_Part_HasDefaultResource {
+                    resource_name @output(out_name: "resource_name")
+                    amount @output(out_name: "amount")
+                    max_amount @output(out_name: "max_amount")
+                }
+            }
+        }
+        """
+        args: Dict[str, Any] = {"internal_name": "Size2LFB"}
+
+        expected_results = [
+            {
+                "part_name": 'LFB KR-1x2 "Twin-Boar" Liquid Fuel Engine',
+                "resource_name": "LiquidFuel",
+                "amount": 2880.0,
+                "max_amount": 2880.0,
+            },
+            {
+                "part_name": 'LFB KR-1x2 "Twin-Boar" Liquid Fuel Engine',
+                "resource_name": "Oxidizer",
+                "amount": 3520.0,
+                "max_amount": 3520.0,
+            },
+        ]
+
+        ensure_query_produces_expected_output(self, query, args, expected_results)

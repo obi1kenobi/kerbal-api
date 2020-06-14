@@ -3,7 +3,11 @@ from typing import Any, Dict, Iterable, Tuple
 from graphql_compiler.interpreter import DataContext, InterpreterAdapter
 from graphql_compiler.interpreter.typedefs import EdgeInfo
 
-from .data_manager import KerbalDataManager, get_engine_modules_for_part
+from .data_manager import (
+    KerbalDataManager,
+    get_default_resources_for_part,
+    get_engine_modules_for_part,
+)
 from .tokens import KerbalToken
 
 
@@ -52,6 +56,8 @@ class KerbalDataAdapter(InterpreterAdapter[KerbalToken]):
 
             if (current_type_name, edge_info) == ("Part", ("out", "Part_EngineModule")):
                 yield (data_context, get_engine_modules_for_part(self.data_manager, token))
+            elif (current_type_name, edge_info) == ("Part", ("out", "Part_HasDefaultResource")):
+                yield (data_context, get_default_resources_for_part(self.data_manager, token))
             else:
                 raise NotImplementedError()
 

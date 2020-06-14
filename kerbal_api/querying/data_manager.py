@@ -1,7 +1,7 @@
 from os import path
 from typing import Dict, List, Type, TypeVar
 
-from ..cfg_parser.coercing_reads import read_bool, read_float, read_raw
+from ..cfg_parser.coercing_reads import read_bool, read_float, read_raw, read_str
 from ..cfg_parser.file_finder import get_ksp_part_cfg_files
 from ..cfg_parser.parser import load_part_config_from_cfg_file
 from ..cfg_parser.typedefs import CfgKey, ParsedCfgFile
@@ -151,5 +151,46 @@ def get_engine_modules_for_part(
         counter += 1
         cfg_key = cfg_key_base + (("MODULE", counter),)
         module_name_key = cfg_key + (("name", 0),)
+
+    return results
+
+
+def _make_contained_resource_token(
+    data_manager: KerbalDataManager, cfg_file_path: str, cfg_path_root: CfgKey,
+) -> KerbalConfigToken:
+    parsed_cfg_file = data_manager.parsed_cfg_files[cfg_file_path]
+    type_name = "ContainedResource"
+
+    content: Dict[str, Any] = {}
+    content["resource_name"] = read_str(parsed_cfg_file, cfg_path_root + (("name", 0),))
+    content["amount"] = read_float(parsed_cfg_file, cfg_path_root + (("amount", 0),))
+    content["max_amount"] = read_float(parsed_cfg_file, cfg_path_root + (("maxAmount", 0),))
+
+    return KerbalConfigToken(type_name, content, cfg_file_path, cfg_path_root)
+
+
+def get_default_resources_for_part(
+    data_manager: KerbalDataManager, token: KerbalConfigToken,
+) -> List[KerbalConfigToken]:
+    assert token.type_name == "Part"
+
+    results: List[KerbalConfigToken] = []
+
+    parsed_cfg_file = data_manager.parsed_cfg_files[token.from_cfg_file_path]
+
+    cfg_key_base = token.from_cfg_root
+    counter = 0
+
+    cfg_key = cfg_key_base + (("RESOURCE", counter),)
+    resource_name_key = cfg_key + (("name", 0),)
+
+    while resource_name_key in parsed_cfg_file:
+        results.append(
+            _make_contained_resource_token(data_manager, token.from_cfg_file_path, cfg_key)
+        )
+
+        counter += 1
+        cfg_key = cfg_key_base + (("RESOURCE", counter),)
+        resource_name_key = cfg_key + (("name", 0),)
 
     return results

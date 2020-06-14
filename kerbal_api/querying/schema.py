@@ -59,6 +59,7 @@ type Part {
     max_temp_tolerance: Float  # expressed in Kelvin, part explodes if above this temp
 
     out_Part_EngineModule: [EngineModule]
+    out_Part_HasDefaultResource: [ContainedResource]
 }
 
 type EngineModule {
@@ -69,8 +70,25 @@ type EngineModule {
     isp_at_1atm: Float
 }
 
+type ContainedResource {
+    resource_name: String  # denormalized from Resource, for convenience
+    amount: Float  # current amount
+    max_amount: Float  # maximum possible amount
+
+    out_ContainedResource_Resource: [Resource]
+}
+
+type Resource {
+    name: String
+    density: Float  # measured in tons per unit of resource
+    specific_heat: Float  # amount of thermal energy required to raise temperature by 1 degree
+    unit_cost: Float  # cost per unit of resource
+    specific_volume: Float  # volume per unit of resource
+}
+
 type RootSchemaQuery {
     Part: [Part]
+    Resource: [Resource]
 }
 """
 )
