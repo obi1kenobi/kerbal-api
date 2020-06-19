@@ -1,25 +1,33 @@
-from typing import Any, Dict, List
+from typing import Any, ClassVar, Dict, List
 from unittest import TestCase
 
-from ..querying import execute_query, get_default_adapter
+from ..querying import KerbalDataAdapter, execute_query, get_default_adapter
 
 
 def ensure_query_produces_expected_output(
-    test_case: TestCase, query: str, args: Dict[str, Any], expected_results: List[Dict[str, Any]],
+    test_case: "TestInterpreter",
+    query: str,
+    args: Dict[str, Any],
+    expected_results: List[Dict[str, Any]],
 ) -> None:
     # The interpreter's output isn't ordered in any particular way, so this helper function
     # implements order-agnostic output comparisons.
     #
     # TODO: when @fold is implemented and tested, make sure we account for differences in
     #       result ordering within the @fold-ed outputs as well.
-    adapter = get_default_adapter()
 
-    actual_results = list(execute_query(adapter, query, args))
+    actual_results = list(execute_query(test_case.adapter, query, args))
 
     test_case.assertCountEqual(expected_results, actual_results)
 
 
 class TestInterpreter(TestCase):
+    adapter: ClassVar[KerbalDataAdapter]
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        cls.adapter = get_default_adapter()
+
     def setUp(self) -> None:
         self.maxDiff = None
 

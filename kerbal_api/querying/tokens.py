@@ -8,7 +8,8 @@ from ..cfg_parser.typedefs import CfgKey, ParsedCfgFile
 @dataclass
 class KerbalToken:
     type_name: str
-    content: Dict[str, Any]
+    content: Dict[str, Any]  # field values
+    foreign_keys: Dict[str, Any]  # values that help us look up neighbors
 
 
 @dataclass
@@ -52,7 +53,7 @@ def make_part_token(cfg_file_path: str, part_config: ParsedCfgFile) -> Optional[
         "max_temp_tolerance": read_float(part_config, base_key + (("maxTemp", 0),), default=1200.0),
     }
 
-    return KerbalConfigToken(type_name, content, cfg_file_path, base_key)
+    return KerbalConfigToken(type_name, content, {}, cfg_file_path, base_key)
 
 
 def make_resource_tokens(
@@ -79,7 +80,7 @@ def make_resource_tokens(
             ),
         }
 
-        results.append(KerbalConfigToken(type_name, content, cfg_file_path, base_key))
+        results.append(KerbalConfigToken(type_name, content, {}, cfg_file_path, base_key))
 
         counter += 1
         base_key = (("RESOURCE_DEFINITION", counter),)

@@ -143,7 +143,7 @@ def _make_engine_module_token(
     content["isp_vacuum"] = atmosphere_curve.get(0.0, None)
     content["isp_at_1atm"] = atmosphere_curve.get(1.0, None)
 
-    return KerbalConfigToken(type_name, content, cfg_file_path, cfg_path_root)
+    return KerbalConfigToken(type_name, content, {}, cfg_file_path, cfg_path_root)
 
 
 def get_engine_modules_for_part(
@@ -180,12 +180,15 @@ def _make_contained_resource_token(
     parsed_cfg_file = data_manager.parsed_cfg_files[cfg_file_path]
     type_name = "ContainedResource"
 
-    content: Dict[str, Any] = {}
-    content["resource_internal_name"] = read_str(parsed_cfg_file, cfg_path_root + (("name", 0),))
-    content["amount"] = read_float(parsed_cfg_file, cfg_path_root + (("amount", 0),))
-    content["max_amount"] = read_float(parsed_cfg_file, cfg_path_root + (("maxAmount", 0),))
+    content: Dict[str, Any] = {
+        "amount": read_float(parsed_cfg_file, cfg_path_root + (("amount", 0),)),
+        "max_amount": read_float(parsed_cfg_file, cfg_path_root + (("maxAmount", 0),)),
+    }
+    foreign_keys: Dict[str, Any] = {
+        "resource_internal_name": read_str(parsed_cfg_file, cfg_path_root + (("name", 0),)),
+    }
 
-    return KerbalConfigToken(type_name, content, cfg_file_path, cfg_path_root)
+    return KerbalConfigToken(type_name, content, foreign_keys, cfg_file_path, cfg_path_root)
 
 
 def get_default_resources_for_part(

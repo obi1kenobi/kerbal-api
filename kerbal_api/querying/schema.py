@@ -71,7 +71,6 @@ type EngineModule {
 }
 
 type ContainedResource {
-    resource_internal_name: String  # denormalized from Resource, for convenience
     amount: Float  # current amount
     max_amount: Float  # maximum possible amount
 

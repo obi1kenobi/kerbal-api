@@ -55,7 +55,7 @@ class KerbalDataAdapter(InterpreterAdapter[KerbalToken]):
             ("ContainedResource", ("out", "ContainedResource_Resource")): (
                 lambda data_manager, token: [
                     data_manager.resources_by_internal_name[
-                        token.content["resource_internal_name"]
+                        token.foreign_keys["resource_internal_name"]
                     ],
                 ]
             ),
