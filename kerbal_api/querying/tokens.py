@@ -9,7 +9,7 @@ from ..cfg_parser.typedefs import CfgKey, ParsedCfgFile
 class KerbalToken:
     type_name: str
     content: Dict[str, Any]  # field values
-    foreign_keys: Dict[str, Any]  # values that help us look up neighbors
+    foreign_keys: Dict[str, List[Any]]  # values that help us look up neighbors
 
 
 @dataclass
@@ -53,7 +53,15 @@ def make_part_token(cfg_file_path: str, part_config: ParsedCfgFile) -> Optional[
         "max_temp_tolerance": read_float(part_config, base_key + (("maxTemp", 0),), default=1200.0),
     }
 
-    return KerbalConfigToken(type_name, content, {}, cfg_file_path, base_key)
+    foreign_keys: Dict[str, List[Any]] = {
+        "tech_required": []
+    }
+
+    tech_required_key = base_key + (("TechRequired", 0),)
+    if tech_required_key in part_config:
+        foreign_keys["tech_required"].append(read_str(part_config, tech_required_key))
+
+    return KerbalConfigToken(type_name, content, foreign_keys, cfg_file_path, base_key)
 
 
 def make_resource_tokens(
@@ -110,7 +118,7 @@ def make_technology_tokens(
         }
 
         any_of_prereqs = read_bool(parsed_cfg_file, base_key + (("anyToUnlock", 0),))
-        foreign_keys: Dict[str, Any] = {
+        foreign_keys: Dict[str, List[Any]] = {
             "mandatory_prereq_ids": [],
             "any_of_prereq_ids": [],
         }

@@ -496,3 +496,29 @@ class TestInterpreter(TestCase):
         ]
 
         ensure_query_produces_expected_output(self, query, args, expected_results)
+
+    def test_contained_resource_traversal(self) -> None:
+        query = """
+        {
+            Part {
+                internal_name @filter(op_name: "=", value: ["$internal_name"])
+                name @output(out_name: "part_name")
+
+                out_Part_RequiredTechnology {
+                    name @output(out_name: "requires_tech")
+                    science_cost @output(out_name: "tech_cost")
+                }
+            }
+        }
+        """
+        args: Dict[str, Any] = {"internal_name": "Size2LFB"}
+
+        expected_results = [
+            {
+                "part_name": 'LFB KR-1x2 "Twin-Boar" Liquid Fuel Engine',
+                "requires_tech": "Heavier Rocketry",
+                "tech_cost": 160.0,
+            },
+        ]
+
+        ensure_query_produces_expected_output(self, query, args, expected_results)

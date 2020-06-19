@@ -60,6 +60,7 @@ type Part {
 
     out_Part_EngineModule: [EngineModule]
     out_Part_HasDefaultResource: [ContainedResource]
+    out_Part_RequiredTechnology: [Technology]
 }
 
 type EngineModule {
