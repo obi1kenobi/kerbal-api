@@ -1,5 +1,5 @@
 from os import path
-from typing import Dict, List, Type, TypeVar
+from typing import Any, Dict, List, Type, TypeVar
 
 from ..cfg_parser.coercing_reads import read_bool, read_float, read_raw, read_str
 from ..cfg_parser.file_finder import get_cfg_files_recursively

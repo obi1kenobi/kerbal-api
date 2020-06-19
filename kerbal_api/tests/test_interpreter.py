@@ -147,7 +147,7 @@ class TestInterpreter(TestCase):
         args: Dict[str, Any] = {"internal_name": "RAPIER"}
 
         # The RAPIER engine has two engine modes, and therefore two engine modules.
-        expected_results = [
+        expected_results: List[Dict[str, Any]] = [
             {
                 "part_cost": 6000,
                 "part_dry_mass": 2.0,
@@ -521,7 +521,7 @@ class TestInterpreter(TestCase):
 
         ensure_query_produces_expected_output(self, query, args, expected_results)
 
-    def test_contained_resource_traversal(self) -> None:
+    def test_part_required_technology(self) -> None:
         query = """
         {
             Part {
