@@ -67,14 +67,19 @@ def make_resource_tokens(
     name_key = base_key + (("name", 0),)
 
     while name_key in parsed_cfg_file:
-        content: Dict[str, Any] = {}
+        content: Dict[str, Any] = {
+            "cfg_file_path": cfg_file_path,
+            "internal_name": read_str(parsed_cfg_file, name_key),
+            "name": read_str(parsed_cfg_file, base_key + (("displayName", 0),)),
+            "density": read_float(parsed_cfg_file, base_key + (("density", 0),)),
+            "specific_heat": read_float(parsed_cfg_file, base_key + (("hsp", 0),)),
+            "unit_cost": read_float(parsed_cfg_file, base_key + (("unitCost", 0),)),
+            "specific_volume": read_float(
+                parsed_cfg_file, base_key + (("volume", 0),), default=0.0,
+            ),
+        }
 
-        content["internal_name"] = read_str(parsed_cfg_file, name_key)
-        content["name"] = read_str(parsed_cfg_file, base_key + (("displayName", 0),))
-        content["density"] = read_float(parsed_cfg_file, base_key + (("density", 0),))
-        content["specific_heat"] = read_float(parsed_cfg_file, base_key + (("hsp", 0),))
-        content["unit_cost"] = read_float(parsed_cfg_file, base_key + (("unitCost", 0),))
-        content["specific_volume"] = read_float(parsed_cfg_file, base_key + (("volume", 0),))
+        results.append(KerbalConfigToken(type_name, content, cfg_file_path, base_key))
 
         counter += 1
         base_key = (("RESOURCE_DEFINITION", counter),)

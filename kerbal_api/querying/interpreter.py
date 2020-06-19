@@ -52,6 +52,13 @@ class KerbalDataAdapter(InterpreterAdapter[KerbalToken]):
         edge_handlers = {
             ("Part", ("out", "Part_EngineModule")): get_engine_modules_for_part,
             ("Part", ("out", "Part_HasDefaultResource")): get_default_resources_for_part,
+            ("ContainedResource", ("out", "ContainedResource_Resource")): (
+                lambda data_manager, token: [
+                    data_manager.resources_by_internal_name[
+                        token.content["resource_internal_name"]
+                    ],
+                ]
+            ),
         }
 
         handler_key = (current_type_name, edge_info)

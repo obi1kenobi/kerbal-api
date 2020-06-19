@@ -144,11 +144,16 @@ class TestInterpreter(TestCase):
             Part {
                 internal_name @filter(op_name: "=", value: ["$internal_name"])
                 name @output(out_name: "part_name")
+                dry_mass @output(out_name: "dry_mass")
 
                 out_Part_HasDefaultResource {
-                    resource_internal_name @output(out_name: "resource_name")
                     amount @output(out_name: "amount")
                     max_amount @output(out_name: "max_amount")
+
+                    out_ContainedResource_Resource {
+                        name @output(out_name: "resource_name")
+                        density @output(out_name: "resource_density")
+                    }
                 }
             }
         }
@@ -158,15 +163,19 @@ class TestInterpreter(TestCase):
         expected_results = [
             {
                 "part_name": 'LFB KR-1x2 "Twin-Boar" Liquid Fuel Engine',
-                "resource_name": "LiquidFuel",
+                "dry_mass": 10.5,
+                "resource_name": "Liquid Fuel",
                 "amount": 2880.0,
                 "max_amount": 2880.0,
+                "resource_density": 0.005,
             },
             {
                 "part_name": 'LFB KR-1x2 "Twin-Boar" Liquid Fuel Engine',
+                "dry_mass": 10.5,
                 "resource_name": "Oxidizer",
                 "amount": 3520.0,
                 "max_amount": 3520.0,
+                "resource_density": 0.005,
             },
         ]
 
@@ -180,7 +189,7 @@ class TestInterpreter(TestCase):
                 name @output(out_name: "resource_name")
                 density @output(out_name: "density")
                 specific_heat @output(out_name: "specific_heat")
-                volume @output(out_name: "volume")
+                specific_volume @output(out_name: "specific_volume")
             }
         }
         """
@@ -191,6 +200,8 @@ class TestInterpreter(TestCase):
                 "resource_name": "Liquid Fuel",
                 "density": 0.005,
                 "specific_heat": 2010.0,
-                "volume": 8,
+                "specific_volume": 5.0,
             },
         ]
+
+        ensure_query_produces_expected_output(self, query, args, expected_results)

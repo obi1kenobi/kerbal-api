@@ -2,7 +2,7 @@ from os import path
 from typing import Dict, List, Type, TypeVar
 
 from ..cfg_parser.coercing_reads import read_bool, read_float, read_raw, read_str
-from ..cfg_parser.file_finder import get_ksp_part_cfg_files
+from ..cfg_parser.file_finder import get_cfg_files_recursively
 from ..cfg_parser.parser import parse_cfg_file
 from ..cfg_parser.typedefs import CfgKey, ParsedCfgFile
 from .tokens import KerbalConfigToken, make_part_token, make_resource_tokens
@@ -60,11 +60,15 @@ class KerbalDataManager:
         self.parts_by_name = {}
         self.parts_by_internal_name = {}
 
+        self.resources = []
+        self.resources_by_name = {}
+        self.resources_by_internal_name = {}
+
     @classmethod
     def from_ksp_install_path(cls: Type[T], ksp_install_path: str) -> T:
         result = cls()
 
-        for cfg_file in get_ksp_part_cfg_files(ksp_install_path):
+        for cfg_file in get_cfg_files_recursively(ksp_install_path):
             result.ingest_cfg_file(cfg_file)
 
         return result

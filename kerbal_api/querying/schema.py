@@ -79,6 +79,7 @@ type ContainedResource {
 }
 
 type Resource {
+    cfg_file_path: String
     internal_name: String
     name: String
     density: Float  # measured in tons per unit of resource
