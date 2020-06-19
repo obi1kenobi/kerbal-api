@@ -127,6 +127,12 @@ def make_technology_tokens(
             prereq_counter += 1
             prereq_key = base_key + (("Parent", prereq_counter), ("parentID", 0))
 
+        # Fix for occasional game data problem: "any of" requirement, but only one tech.
+        # We make such prerequisites mandatory, since there is no choice to be made.
+        if len(foreign_keys["any_of_prereq_ids"]) == 1:
+            foreign_keys["mandatory_prereq_ids"].extend(foreign_keys["any_of_prereq_ids"])
+            foreign_keys["any_of_prereq_ids"] = []
+
         results.append(KerbalConfigToken(type_name, content, foreign_keys, cfg_file_path, base_key))
 
         counter += 1

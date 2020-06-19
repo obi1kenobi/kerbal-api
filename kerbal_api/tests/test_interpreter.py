@@ -213,3 +213,125 @@ class TestInterpreter(TestCase):
         ]
 
         ensure_query_produces_expected_output(self, query, args, expected_results)
+
+    def test_tech_tree_mandatory_prerequisites(self) -> None:
+        query = """
+        {
+            Technology {
+                name @filter(op_name: "=", value: ["$tech_name"]) @output(out_name: "tech_name")
+                description @output(out_name: "tech_description")
+                science_cost @output(out_name: "tech_cost")
+
+                out_Technology_MandatoryPrerequisite {
+                    name @output(out_name: "mandatory_prerequisite")
+                    description @output(out_name: "prereq_description")
+                    science_cost @output(out_name: "prereq_cost")
+                }
+            }
+        }
+        """
+        args: Dict[str, Any] = {"tech_name": "Heavy Landing"}
+
+        expected_results = [
+            {
+                "tech_name": "Heavy Landing",
+                "tech_description": (
+                    "A good landing is one where you walk away from it. "
+                    "A great landing is one where you get to use the aircraft again."
+                ),
+                "tech_cost": 300.0,
+                "mandatory_prerequisite": "Advanced Landing",
+                "prereq_description": (
+                    "Further advances in landing devices, allowing for more controlled descents "
+                    "and a much higher number of parts still attached to the ship after touchdown."
+                ),
+                "prereq_cost": 160.0,
+            },
+        ]
+
+        ensure_query_produces_expected_output(self, query, args, expected_results)
+
+    def test_tech_tree_singular_any_of_prereqs_converted_to_mandatory_prerequisites(self) -> None:
+        # This test ensures we correct a particular kind of data error in the game files,
+        # where a tech is listed as having "any of" prerequisites, but only a single prerequisite
+        # is listed. Since there is no choice to be made, we convert this to a mandatory prereq.
+        query = """
+        {
+            Technology {
+                name @filter(op_name: "=", value: ["$tech_name"]) @output(out_name: "tech_name")
+                description @output(out_name: "tech_description")
+                science_cost @output(out_name: "tech_cost")
+
+                out_Technology_MandatoryPrerequisite {
+                    name @output(out_name: "mandatory_prerequisite")
+                    description @output(out_name: "prereq_description")
+                    science_cost @output(out_name: "prereq_cost")
+                }
+            }
+        }
+        """
+        args: Dict[str, Any] = {"tech_name": "Aviation"}
+
+        expected_results = [
+            {
+                "tech_name": "Aviation",
+                "tech_description": (
+                    "The art and science of keeping heavier-than-air objects aloft "
+                    "for extended periods of time."
+                ),
+                "tech_cost": 45.0,
+                "mandatory_prerequisite": "Stability",
+                "prereq_description": (
+                    "Reaching for the stars starts with keeping our spacecraft "
+                    "pointed generally in the right direction."
+                ),
+                "prereq_cost": 18.0,
+            },
+        ]
+
+        ensure_query_produces_expected_output(self, query, args, expected_results)
+
+    def test_tech_tree_any_of_prerequisites(self) -> None:
+        query = """
+        {
+            Technology {
+                name @filter(op_name: "=", value: ["$tech_name"]) @output(out_name: "tech_name")
+                description @output(out_name: "tech_description")
+                science_cost @output(out_name: "tech_cost")
+
+                out_Technology_AnyOfPrerequisite {
+                    name @output(out_name: "optional_prerequisite")
+                    description @output(out_name: "prereq_description")
+                    science_cost @output(out_name: "prereq_cost")
+                }
+            }
+        }
+        """
+        args: Dict[str, Any] = {"tech_name": "Landing"}
+
+        expected_results = [
+            {
+                "tech_name": "Landing",
+                "tech_description": "Our Engineers are nothing if not optimistic.",
+                "tech_cost": 90.0,
+                "optional_prerequisite": "Flight Control",
+                "prereq_description": (
+                    "Tumbling out of control may be fun, but our engineers insist "
+                    "there's more to rocket science than that."
+                ),
+                "prereq_cost": 45.0,
+            },
+            {
+                "tech_name": "Landing",
+                "tech_description": "Our Engineers are nothing if not optimistic.",
+                "tech_cost": 90.0,
+                "optional_prerequisite": "Aviation",
+                "prereq_description": (
+                    "The art and science of keeping heavier-than-air objects aloft "
+                    "for extended periods of time."
+                ),
+                "prereq_cost": 45.0,
+            },
+        ]
+
+        ensure_query_produces_expected_output(self, query, args, expected_results)

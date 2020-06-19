@@ -105,6 +105,7 @@ type Technology {
 type RootSchemaQuery {
     Part: [Part]
     Resource: [Resource]
+    Technology: [Technology]
 }
 """
 )

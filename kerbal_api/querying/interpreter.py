@@ -24,6 +24,8 @@ class KerbalDataAdapter(InterpreterAdapter[KerbalToken]):
             return self.data_manager.parts
         elif type_name == "Resource":
             return self.data_manager.resources
+        elif type_name == "Technology":
+            return self.data_manager.technologies
         else:
             raise NotImplementedError()
 
@@ -57,6 +59,18 @@ class KerbalDataAdapter(InterpreterAdapter[KerbalToken]):
                     data_manager.resources_by_internal_name[
                         token.foreign_keys["resource_internal_name"]
                     ],
+                ]
+            ),
+            ("Technology", ("out", "Technology_MandatoryPrerequisite")): (
+                lambda data_manager, token: [
+                    data_manager.technologies_by_id[tech_id]
+                    for tech_id in token.foreign_keys["mandatory_prereq_ids"]
+                ]
+            ),
+            ("Technology", ("out", "Technology_AnyOfPrerequisite")): (
+                lambda data_manager, token: [
+                    data_manager.technologies_by_id[tech_id]
+                    for tech_id in token.foreign_keys["any_of_prereq_ids"]
                 ]
             ),
         }
