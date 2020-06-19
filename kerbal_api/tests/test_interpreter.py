@@ -335,3 +335,82 @@ class TestInterpreter(TestCase):
         ]
 
         ensure_query_produces_expected_output(self, query, args, expected_results)
+
+    def test_tech_tree_longest_mandatory_prereqs_chain(self) -> None:
+        # Here's a chain of 9 technologies with all-mandatory prerequisites. These techs have to
+        # be researched in the specified order, with no room to maneuver around them.
+        # It is the longest such chain in the game!
+        query = """
+        {
+            Technology {
+                name @output(out_name: "tech_name")
+                science_cost @output(out_name: "tech_cost")
+
+                out_Technology_MandatoryPrerequisite {
+                    name @output(out_name: "prereq_1_name")
+                    science_cost @output(out_name: "prereq_1_cost")
+
+                    out_Technology_MandatoryPrerequisite {
+                        name @output(out_name: "prereq_2_name")
+                        science_cost @output(out_name: "prereq_2_cost")
+
+                        out_Technology_MandatoryPrerequisite {
+                            name @output(out_name: "prereq_3_name")
+                            science_cost @output(out_name: "prereq_3_cost")
+
+                            out_Technology_MandatoryPrerequisite {
+                                name @output(out_name: "prereq_4_name")
+                                science_cost @output(out_name: "prereq_4_cost")
+
+                                out_Technology_MandatoryPrerequisite {
+                                    name @output(out_name: "prereq_5_name")
+                                    science_cost @output(out_name: "prereq_5_cost")
+
+                                    out_Technology_MandatoryPrerequisite {
+                                        name @output(out_name: "prereq_6_name")
+                                        science_cost @output(out_name: "prereq_6_cost")
+
+                                        out_Technology_MandatoryPrerequisite {
+                                            name @output(out_name: "prereq_7_name")
+                                            science_cost @output(out_name: "prereq_7_cost")
+
+                                            out_Technology_MandatoryPrerequisite {
+                                                name @output(out_name: "prereq_8_name")
+                                                science_cost @output(out_name: "prereq_8_cost")
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        """
+        args: Dict[str, Any] = {}
+
+        expected_results = [
+            {
+                "tech_name": "Experimental Electrics",
+                "tech_cost": 1000.0,
+                "prereq_1_name": "Specialized Electrics",
+                "prereq_1_cost": 550.0,
+                "prereq_2_name": "High-Power Electrics",
+                "prereq_2_cost": 300.0,
+                "prereq_3_name": "Advanced Electrics",
+                "prereq_3_cost": 160.0,
+                "prereq_4_name": "Electrics",
+                "prereq_4_cost": 90.0,
+                "prereq_5_name": "Basic Science",
+                "prereq_5_cost": 45.0,
+                "prereq_6_name": "Survivability",
+                "prereq_6_cost": 15.0,
+                "prereq_7_name": "Engineering 101",
+                "prereq_7_cost": 5.0,
+                "prereq_8_name": "Start",
+                "prereq_8_cost": 0.0,
+            }
+        ]
+
+        ensure_query_produces_expected_output(self, query, args, expected_results)
