@@ -48,14 +48,13 @@ def make_part_token(cfg_file_path: str, part_config: ParsedCfgFile) -> Optional[
         "name": read_str(part_config, base_key + (("title", 0),)),
         "manufacturer": read_str(part_config, base_key + (("manufacturer", 0),), default="N/A"),
         "cost": read_int(part_config, base_key + (("cost", 0),)),
+        "development_cost": read_int(part_config, base_key + (("entryCost", 0),)),
         "dry_mass": read_float(part_config, base_key + (("mass", 0),)),
         "crash_tolerance": read_float(part_config, base_key + (("crashTolerance", 0),)),
         "max_temp_tolerance": read_float(part_config, base_key + (("maxTemp", 0),), default=1200.0),
     }
 
-    foreign_keys: Dict[str, List[Any]] = {
-        "tech_required": []
-    }
+    foreign_keys: Dict[str, List[Any]] = {"tech_required": []}
 
     tech_required_key = base_key + (("TechRequired", 0),)
     if tech_required_key in part_config:

@@ -54,6 +54,7 @@ type Part {
     manufacturer: String
     description: String
     cost: Int
+    development_cost: Int  # cost to develop the part after researching its prerequisite tech
     dry_mass: Float  # expressed in metric tons
     crash_tolerance: Float  # expressed in m/s
     max_temp_tolerance: Float  # expressed in Kelvin, part explodes if above this temp

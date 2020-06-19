@@ -102,6 +102,30 @@ class TestInterpreter(TestCase):
 
         ensure_query_produces_expected_output(self, query, args, expected_results)
 
+    def test_parts_costly_to_develop(self) -> None:
+        query = """
+        {
+            Part {
+                development_cost @filter(op_name: ">=", value: ["$min_development_cost"])
+                                 @output(out_name: "development_cost")
+                cost @output(out_name: "part_cost")
+                name @output(out_name: "part_name")
+            }
+        }
+        """
+
+        args: Dict[str, Any] = {"min_development_cost": 200_000}
+
+        expected_results = [
+            {
+                "development_cost": 204800,
+                "part_cost": 51200,
+                "part_name": "Kerbodyne S4-512 Fuel Tank",
+            }
+        ]
+
+        ensure_query_produces_expected_output(self, query, args, expected_results)
+
     def test_engine_part_edge_traversal(self) -> None:
         query = """
         {
