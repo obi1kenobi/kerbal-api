@@ -71,7 +71,7 @@ type EngineModule {
 }
 
 type ContainedResource {
-    resource_name: String  # denormalized from Resource, for convenience
+    resource_internal_name: String  # denormalized from Resource, for convenience
     amount: Float  # current amount
     max_amount: Float  # maximum possible amount
 
@@ -79,6 +79,7 @@ type ContainedResource {
 }
 
 type Resource {
+    internal_name: String
     name: String
     density: Float  # measured in tons per unit of resource
     specific_heat: Float  # amount of thermal energy required to raise temperature by 1 degree

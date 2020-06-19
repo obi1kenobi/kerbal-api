@@ -46,6 +46,10 @@ class KerbalDataManager:
     parts_by_internal_name: Dict[
         str, List[KerbalConfigToken]
     ]  # index of parts by internal name, not unique
+
+    resources: List[KerbalConfigToken]  # authoritative list of all known resources
+    resources_by_name: Dict[str, KerbalConfigToken]  # index of resources by display name
+    resources_by_internal_name: Dict[str, KerbalConfigToken]  # index of resources by internal name
     # End part data management
 
     def __init__(self) -> None:
@@ -162,7 +166,7 @@ def _make_contained_resource_token(
     type_name = "ContainedResource"
 
     content: Dict[str, Any] = {}
-    content["resource_name"] = read_str(parsed_cfg_file, cfg_path_root + (("name", 0),))
+    content["resource_internal_name"] = read_str(parsed_cfg_file, cfg_path_root + (("name", 0),))
     content["amount"] = read_float(parsed_cfg_file, cfg_path_root + (("amount", 0),))
     content["max_amount"] = read_float(parsed_cfg_file, cfg_path_root + (("maxAmount", 0),))
 

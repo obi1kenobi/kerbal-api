@@ -146,7 +146,7 @@ class TestInterpreter(TestCase):
                 name @output(out_name: "part_name")
 
                 out_Part_HasDefaultResource {
-                    resource_name @output(out_name: "resource_name")
+                    resource_internal_name @output(out_name: "resource_name")
                     amount @output(out_name: "amount")
                     max_amount @output(out_name: "max_amount")
                 }

@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Any, Dict, Optional, Set
+from typing import Any, Dict, List, Optional, Set
 
 from ..cfg_parser.coercing_reads import read_float, read_int, read_str
 from ..cfg_parser.typedefs import CfgKey, ParsedCfgFile
@@ -48,3 +48,29 @@ def make_part_token(cfg_file_path: str, part_config: ParsedCfgFile) -> Optional[
     }
 
     return KerbalConfigToken(type_name, content, cfg_file_path, base_key)
+
+
+def make_resource_token(cfg_file_path: str, parsed_cfg_file: ParsedCfgFile) -> List[KerbalConfigToken]:
+    type_name = "Resource"
+
+    results: List[KerbalConfigToken] = []
+
+    counter = 0
+    base_key = (("RESOURCE_DEFINITION", counter),)
+    name_key = base_key + (("name", 0),)
+
+    while name_key in parsed_cfg_file:
+        content: Dict[str, Any] = {}
+
+        content["internal_name"] = read_str(parsed_cfg_file, name_key)
+        content["name"] = read_str(parsed_cfg_file, base_key + (("displayName", 0),))
+        content["density"] = read_float(parsed_cfg_file, base_key + (("density", 0),))
+        content["specific_heat"] = read_float(parsed_cfg_file, base_key + (("hsp", 0),))
+        content["unit_cost"] = read_float(parsed_cfg_file, base_key + (("unitCost", 0),))
+        content["specific_volume"] = read_float(parsed_cfg_file, base_key + (("volume", 0),))
+
+        counter += 1
+        base_key = (("RESOURCE_DEFINITION", counter),)
+        name_key = base_key + (("name", 0),)
+
+    return results
