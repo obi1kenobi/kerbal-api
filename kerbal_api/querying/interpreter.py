@@ -22,6 +22,8 @@ class KerbalDataAdapter(InterpreterAdapter[KerbalToken]):
     def get_tokens_of_type(self, type_name: str, **hints: Dict[str, Any]) -> Iterable[KerbalToken]:
         if type_name == "Part":
             return self.data_manager.parts
+        elif type_name == "Resource":
+            return self.data_manager.resources
         else:
             raise NotImplementedError()
 

@@ -171,3 +171,26 @@ class TestInterpreter(TestCase):
         ]
 
         ensure_query_produces_expected_output(self, query, args, expected_results)
+
+    def test_resource_info(self) -> None:
+        query = """
+        {
+            Resource {
+                internal_name @filter(op_name: "=", value: ["$internal_name"])
+                name @output(out_name: "resource_name")
+                density @output(out_name: "density")
+                specific_heat @output(out_name: "specific_heat")
+                volume @output(out_name: "volume")
+            }
+        }
+        """
+        args: Dict[str, Any] = {"internal_name": "LiquidFuel"}
+
+        expected_results = [
+            {
+                "resource_name": "Liquid Fuel",
+                "density": 0.005,
+                "specific_heat": 2010.0,
+                "volume": 8,
+            },
+        ]
