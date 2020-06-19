@@ -49,19 +49,24 @@ class KerbalDataAdapter(InterpreterAdapter[KerbalToken]):
         edge_info: EdgeInfo,
         **hints: Dict[str, Any],
     ) -> Iterable[Tuple[DataContext[KerbalToken], Iterable[KerbalToken]]]:
-        for data_context in data_contexts:
-            token = data_context.current_token
+        edge_handlers = {
+            ("Part", ("out", "Part_EngineModule")): get_engine_modules_for_part,
+            ("Part", ("out", "Part_HasDefaultResource")): get_default_resources_for_part,
+        }
 
-            if token is None:
-                yield (data_context, [])
-                continue
+        handler_key = (current_type_name, edge_info)
+        handler_for_edge = edge_handlers.get(handler_key, None)
+        if handler_for_edge is None:
+            raise NotImplementedError(handler_key)
+        else:
+            for data_context in data_contexts:
+                token = data_context.current_token
 
-            if (current_type_name, edge_info) == ("Part", ("out", "Part_EngineModule")):
-                yield (data_context, get_engine_modules_for_part(self.data_manager, token))
-            elif (current_type_name, edge_info) == ("Part", ("out", "Part_HasDefaultResource")):
-                yield (data_context, get_default_resources_for_part(self.data_manager, token))
-            else:
-                raise NotImplementedError()
+                neighbors = []
+                if token is not None:
+                    neighbors = handler_for_edge(self.data_manager, token)
+
+                yield (data_context, neighbors)
 
     def can_coerce_to_type(
         self,
