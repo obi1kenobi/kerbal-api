@@ -414,3 +414,85 @@ class TestInterpreter(TestCase):
         ]
 
         ensure_query_produces_expected_output(self, query, args, expected_results)
+
+    def test_tech_tree_longest_one_of_prereqs_chain(self) -> None:
+        # Here's a chain of 7 technologies, all of which have "choose any" prerequisites.
+        # For each of these techs except the start of the chain ("prereq_6"), the player
+        # has a choice in how to unlock it based on which of the prerequisites they choose
+        # to fulfill. They are the longest such chains in the game!
+        query = """
+        {
+            Technology {
+                name @output(out_name: "tech_name")
+                science_cost @output(out_name: "tech_cost")
+
+                out_Technology_AnyOfPrerequisite {
+                    name @output(out_name: "prereq_1_name")
+                    science_cost @output(out_name: "prereq_1_cost")
+
+                    out_Technology_AnyOfPrerequisite {
+                        name @output(out_name: "prereq_2_name")
+                        science_cost @output(out_name: "prereq_2_cost")
+
+                        out_Technology_AnyOfPrerequisite {
+                            name @output(out_name: "prereq_3_name")
+                            science_cost @output(out_name: "prereq_3_cost")
+
+                            out_Technology_AnyOfPrerequisite {
+                                name @output(out_name: "prereq_4_name")
+                                science_cost @output(out_name: "prereq_4_cost")
+
+                                out_Technology_AnyOfPrerequisite {
+                                    name @output(out_name: "prereq_5_name")
+                                    science_cost @output(out_name: "prereq_5_cost")
+
+                                    out_Technology_AnyOfPrerequisite {
+                                        name @output(out_name: "prereq_6_name")
+                                        science_cost @output(out_name: "prereq_6_cost")
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        """
+        args: Dict[str, Any] = {}
+
+        expected_results = [
+            {
+                "tech_name": "Very Heavy Rocketry",
+                "tech_cost": 550.0,
+                "prereq_1_name": "Large Volume Containment",
+                "prereq_1_cost": 300.0,
+                "prereq_2_name": "Adv. Fuel Systems",
+                "prereq_2_cost": 160.0,
+                "prereq_3_name": "Fuel Systems",
+                "prereq_3_cost": 90.0,
+                "prereq_4_name": "General Construction",
+                "prereq_4_cost": 45.0,
+                "prereq_5_name": "Stability",
+                "prereq_5_cost": 18.0,
+                "prereq_6_name": "Engineering 101",
+                "prereq_6_cost": 5.0,
+            },
+            {
+                "tech_name": "Very Heavy Rocketry",
+                "tech_cost": 550.0,
+                "prereq_1_name": "Large Volume Containment",
+                "prereq_1_cost": 300.0,
+                "prereq_2_name": "Adv. Fuel Systems",
+                "prereq_2_cost": 160.0,
+                "prereq_3_name": "Fuel Systems",
+                "prereq_3_cost": 90.0,
+                "prereq_4_name": "General Construction",
+                "prereq_4_cost": 45.0,
+                "prereq_5_name": "Stability",
+                "prereq_5_cost": 18.0,
+                "prereq_6_name": "Basic Rocketry",
+                "prereq_6_cost": 5.0,
+            },
+        ]
+
+        ensure_query_produces_expected_output(self, query, args, expected_results)
