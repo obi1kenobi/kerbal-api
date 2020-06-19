@@ -3,9 +3,9 @@ from typing import Dict, List, Type, TypeVar
 
 from ..cfg_parser.coercing_reads import read_bool, read_float, read_raw, read_str
 from ..cfg_parser.file_finder import get_ksp_part_cfg_files
-from ..cfg_parser.parser import load_part_config_from_cfg_file
+from ..cfg_parser.parser import parse_cfg_file
 from ..cfg_parser.typedefs import CfgKey, ParsedCfgFile
-from .tokens import KerbalConfigToken, make_part_token
+from .tokens import KerbalConfigToken, make_part_token, make_resource_tokens
 
 
 def _canonicalize_path(file_path: str) -> str:
@@ -75,7 +75,7 @@ class KerbalDataManager:
             # All done, this is a no-op.
             return
 
-        cfg_file = load_part_config_from_cfg_file(canonicalized_path)
+        cfg_file = parse_cfg_file(canonicalized_path)
         if cfg_file is None:
             # This is not a cfg file format we recognize. Nothing to be done.
             return
@@ -91,6 +91,10 @@ class KerbalDataManager:
             _set_without_overwriting(self.parts_by_cfg_file_path, canonicalized_path, part_token)
             self.parts_by_internal_name.setdefault(part_internal_name, []).append(part_token)
             self.parts_by_name.setdefault(part_name, []).append(part_token)
+
+        resource_tokens = make_resource_tokens(canonicalized_path, cfg_file)
+        for resource_token in resource_tokens:
+            pass
 
 
 def _make_engine_module_token(

@@ -21,8 +21,13 @@ def make_part_token(cfg_file_path: str, part_config: ParsedCfgFile) -> Optional[
     type_name = "Part"
 
     base_key = (("PART", 0),)
+    name_key = base_key + (("name", 0),)
 
-    internal_name = read_str(part_config, base_key + (("name", 0),))
+    if name_key not in part_config:
+        # There is no part definition in this file.
+        return None
+
+    internal_name = read_str(part_config, name_key)
 
     non_part_blacklist: Set[str] = {
         "flag",
@@ -50,7 +55,7 @@ def make_part_token(cfg_file_path: str, part_config: ParsedCfgFile) -> Optional[
     return KerbalConfigToken(type_name, content, cfg_file_path, base_key)
 
 
-def make_resource_token(cfg_file_path: str, parsed_cfg_file: ParsedCfgFile) -> List[KerbalConfigToken]:
+def make_resource_tokens(cfg_file_path: str, parsed_cfg_file: ParsedCfgFile) -> List[KerbalConfigToken]:
     type_name = "Resource"
 
     results: List[KerbalConfigToken] = []

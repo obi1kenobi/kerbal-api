@@ -9,27 +9,22 @@ from .typedefs import CfgKey, ParsedCfgFile
 #       instead of this hacked-together monstrosity.
 
 
-def load_part_config_from_cfg_file(file_path: str,) -> Optional[ParsedCfgFile]:
+def parse_cfg_file(file_path: str,) -> Optional[ParsedCfgFile]:
     with open(file_path, "r") as f:
         lines: List[str] = [raw_line.strip() for raw_line in f]
 
     if not lines:
         return None
 
-    if lines[0][0] == "\ufeff":
-        # Remove byte-order marks at the start of the file
-        lines[0] = lines[0][1:]
-
-    expected_part_file_start = ["PART", "{"]
-    if lines[:2] != expected_part_file_start:
-        # Not a part file, ignore.
-        return None
-
     visited_sections: Set[CfgKey] = set()
     current_section: List[Tuple[str, int]] = []
     data: ParsedCfgFile = {}
 
-    expected_section_name_chars = set(string.ascii_letters) | set(string.digits) | {"_"}
+    if lines[0] and lines[0][0] == "\ufeff":
+        # Remove byte-order marks at the start of the file
+        lines[0] = lines[0][1:]
+
+    expected_section_name_chars = set(string.ascii_letters) | set(string.digits) | {"_", "-"}
     section_like_exceptions = {
         # One of the built-in KSP files has the below string appear within a section,
         # bare (without a "= value" suffix), and without starting a new section by that name.
@@ -93,13 +88,17 @@ def load_part_config_from_cfg_file(file_path: str,) -> Optional[ParsedCfgFile]:
                         f"Unexpected line {line_index} in file {file_path}: {line}"
                     )
 
-            unexpected_chars = set(line) - expected_section_name_chars
+            section_name = line
+            if "//" in section_name:
+                section_name = section_name.split("//", 1)[0].strip()
+
+            unexpected_chars = set(section_name) - expected_section_name_chars
             if unexpected_chars:
                 raise AssertionError(
-                    f"Unexpected section name at line {line_index} in file {file_path}: {line}"
+                    f"Unexpected section name at line {line_index} in file {file_path}: "
+                    f"{section_name}"
                 )
 
-            section_name = line
             counter = 0
 
             section_key = (section_name, counter)
