@@ -94,7 +94,14 @@ class KerbalDataManager:
 
         resource_tokens = make_resource_tokens(canonicalized_path, cfg_file)
         for resource_token in resource_tokens:
-            pass
+            resource_name = resource_token.content["name"]
+            resource_internal_name = resource_token.content["internal_name"]
+
+            self.resources.append(resource_token)
+            _set_without_overwriting(self.resources_by_name, resource_name, resource_token)
+            _set_without_overwriting(
+                self.resources_by_internal_name, resource_internal_name, resource_token
+            )
 
 
 def _make_engine_module_token(

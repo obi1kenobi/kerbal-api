@@ -55,7 +55,9 @@ def make_part_token(cfg_file_path: str, part_config: ParsedCfgFile) -> Optional[
     return KerbalConfigToken(type_name, content, cfg_file_path, base_key)
 
 
-def make_resource_tokens(cfg_file_path: str, parsed_cfg_file: ParsedCfgFile) -> List[KerbalConfigToken]:
+def make_resource_tokens(
+    cfg_file_path: str, parsed_cfg_file: ParsedCfgFile
+) -> List[KerbalConfigToken]:
     type_name = "Resource"
 
     results: List[KerbalConfigToken] = []
