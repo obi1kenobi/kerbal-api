@@ -5,7 +5,7 @@ from ..cfg_parser.coercing_reads import read_bool, read_float, read_raw, read_st
 from ..cfg_parser.file_finder import get_cfg_files_recursively
 from ..cfg_parser.parser import parse_cfg_file
 from ..cfg_parser.typedefs import CfgKey, ParsedCfgFile
-from .tokens import KerbalConfigToken, make_part_token, make_resource_tokens
+from .tokens import KerbalConfigToken, make_part_token, make_resource_tokens, make_technology_tokens
 
 
 def _canonicalize_path(file_path: str) -> str:
@@ -47,10 +47,17 @@ class KerbalDataManager:
         str, List[KerbalConfigToken]
     ]  # index of parts by internal name, not unique
 
+    # Resource data management
     resources: List[KerbalConfigToken]  # authoritative list of all known resources
     resources_by_name: Dict[str, KerbalConfigToken]  # index of resources by display name
     resources_by_internal_name: Dict[str, KerbalConfigToken]  # index of resources by internal name
     # End part data management
+
+    # Technology data management
+    technologies: List[KerbalConfigToken]  # authoritative list of all known techs
+    technologies_by_name: Dict[str, KerbalConfigToken]  # index of technologies by display name
+    technologies_by_id: Dict[str, KerbalConfigToken]  # index of technologies by internal id
+    # End technology data management
 
     def __init__(self) -> None:
         self.parsed_cfg_files = {}
@@ -63,6 +70,10 @@ class KerbalDataManager:
         self.resources = []
         self.resources_by_name = {}
         self.resources_by_internal_name = {}
+
+        self.technologies = []
+        self.technologies_by_name = {}
+        self.technologies_by_id = {}
 
     @classmethod
     def from_ksp_install_path(cls: Type[T], ksp_install_path: str) -> T:
@@ -106,6 +117,15 @@ class KerbalDataManager:
             _set_without_overwriting(
                 self.resources_by_internal_name, resource_internal_name, resource_token
             )
+
+        technology_tokens = make_technology_tokens(canonicalized_path, cfg_file)
+        for technology_token in technology_tokens:
+            technology_name = technology_token.content["name"]
+            technology_id = technology_token.content["id"]
+
+            self.technologies.append(technology_token)
+            _set_without_overwriting(self.technologies_by_name, technology_name, technology_token)
+            _set_without_overwriting(self.technologies_by_id, technology_id, technology_token)
 
 
 def _make_engine_module_token(

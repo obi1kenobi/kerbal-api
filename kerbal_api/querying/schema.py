@@ -87,6 +87,21 @@ type Resource {
     specific_volume: Float  # volume per unit of resource
 }
 
+type Technology {
+    cfg_file_path: String
+    id: String
+    name: String
+    description: String
+    science_cost: Float
+
+    out_Technology_MandatoryPrerequisite: [Technology]  # to unlock this tech, unlock all of these
+    out_Technology_AnyOfPrerequisite: [Technology]  # to unlock this tech, unlock any of these
+
+    # TODO: add these "opposite direction" edges
+    # in_Technology_MandatoryPrerequisite: [Technology]  # this tech is a prereq for the following
+    # in_Technology_AnyOfPrerequisite: [Technology]  # this is an "any of" prereq for the following
+}
+
 type RootSchemaQuery {
     Part: [Part]
     Resource: [Resource]

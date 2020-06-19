@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import Any, Dict, List, Optional, Set
 
-from ..cfg_parser.coercing_reads import read_float, read_int, read_str
+from ..cfg_parser.coercing_reads import read_bool, read_float, read_int, read_str
 from ..cfg_parser.typedefs import CfgKey, ParsedCfgFile
 
 
@@ -85,5 +85,52 @@ def make_resource_tokens(
         counter += 1
         base_key = (("RESOURCE_DEFINITION", counter),)
         name_key = base_key + (("name", 0),)
+
+    return results
+
+
+def make_technology_tokens(
+    cfg_file_path: str, parsed_cfg_file: ParsedCfgFile
+) -> List[KerbalConfigToken]:
+    type_name = "Technology"
+
+    results: List[KerbalConfigToken] = []
+
+    counter = 0
+    base_key = (("TechTree", 0), ("RDNode", counter))
+    id_key = base_key + (("id", 0),)
+
+    while id_key in parsed_cfg_file:
+        content: Dict[str, Any] = {
+            "cfg_file_path": cfg_file_path,
+            "id": read_str(parsed_cfg_file, id_key),
+            "name": read_str(parsed_cfg_file, base_key + (("title", 0),)),
+            "description": read_str(parsed_cfg_file, base_key + (("description", 0),)),
+            "science_cost": read_float(parsed_cfg_file, base_key + (("cost", 0),)),
+        }
+
+        any_of_prereqs = read_bool(parsed_cfg_file, base_key + (("anyToUnlock", 0),))
+        foreign_keys: Dict[str, Any] = {
+            "mandatory_prereq_ids": [],
+            "any_of_prereq_ids": [],
+        }
+
+        prereq_counter = 0
+        prereq_key = base_key + (("Parent", prereq_counter), ("parentID", 0))
+        while prereq_key in parsed_cfg_file:
+            prereq_id = read_str(parsed_cfg_file, prereq_key)
+            if any_of_prereqs:
+                foreign_keys["any_of_prereq_ids"].append(prereq_id)
+            else:
+                foreign_keys["mandatory_prereq_ids"].append(prereq_id)
+
+            prereq_counter += 1
+            prereq_key = base_key + (("Parent", prereq_counter), ("parentID", 0))
+
+        results.append(KerbalConfigToken(type_name, content, foreign_keys, cfg_file_path, base_key))
+
+        counter += 1
+        base_key = (("TechTree", 0), ("RDNode", counter))
+        id_key = base_key + (("id", 0),)
 
     return results
