@@ -546,3 +546,224 @@ class TestInterpreter(TestCase):
         ]
 
         ensure_query_produces_expected_output(self, query, args, expected_results)
+
+    def test_part_transmitter_module_basic_stats_loading(self) -> None:
+        query = """
+        {
+            Part {
+                internal_name @filter(op_name: "=", value: ["$internal_name"])
+
+                out_Part_DataTransmitter {
+                    power @output(out_name: "power")
+                    packet_size @output(out_name: "packet_size")
+                    packet_cost @output(out_name: "packet_cost")
+                    packet_interval @output(out_name: "packet_interval")
+
+                    transmission_speed @output(out_name: "transmission_speed")
+                    electricity_per_mit @output(out_name: "electricity_per_mit")
+                    electricity_per_second @output(out_name: "electricity_per_second")
+                }
+            }
+        }
+        """
+        args: Dict[str, Any] = {"internal_name": "mk1pod"}
+
+        expected_results = [
+            {
+                "power": 5000.0,
+                "packet_size": 2.0,
+                "packet_cost": 12.0,
+                "packet_interval": 1.0,
+                "transmission_speed": 2.0,
+                "electricity_per_mit": 6.0,
+                "electricity_per_second": 12.0,
+            },
+        ]
+
+        ensure_query_produces_expected_output(self, query, args, expected_results)
+
+    def test_part_transmitter_module_coercion_to_internal_transmitter_result_unchanged(
+        self,
+    ) -> None:
+        query = """
+        {
+            Part {
+                internal_name @filter(op_name: "=", value: ["$internal_name"])
+
+                out_Part_DataTransmitter {
+                    ... on InternalTransmitterModule {
+                        power @output(out_name: "power")
+                        packet_size @output(out_name: "packet_size")
+                        packet_cost @output(out_name: "packet_cost")
+                        packet_interval @output(out_name: "packet_interval")
+
+                        transmission_speed @output(out_name: "transmission_speed")
+                        electricity_per_mit @output(out_name: "electricity_per_mit")
+                        electricity_per_second @output(out_name: "electricity_per_second")
+                    }
+                }
+            }
+        }
+        """
+        args: Dict[str, Any] = {"internal_name": "mk1pod"}
+
+        expected_results = [
+            {
+                "power": 5000.0,
+                "packet_size": 2.0,
+                "packet_cost": 12.0,
+                "packet_interval": 1.0,
+                "transmission_speed": 2.0,
+                "electricity_per_mit": 6.0,
+                "electricity_per_second": 12.0,
+            },
+        ]
+
+        ensure_query_produces_expected_output(self, query, args, expected_results)
+
+    def test_part_transmitter_module_coercion_to_antenna_transmitter_no_results(self,) -> None:
+        query = """
+        {
+            Part {
+                internal_name @filter(op_name: "=", value: ["$internal_name"])
+
+                out_Part_DataTransmitter {
+                    ... on AntennaModule {
+                        power @output(out_name: "power")
+                        packet_size @output(out_name: "packet_size")
+                        packet_cost @output(out_name: "packet_cost")
+                        packet_interval @output(out_name: "packet_interval")
+
+                        transmission_speed @output(out_name: "transmission_speed")
+                        electricity_per_mit @output(out_name: "electricity_per_mit")
+                        electricity_per_second @output(out_name: "electricity_per_second")
+                    }
+                }
+            }
+        }
+        """
+        args: Dict[str, Any] = {"internal_name": "mk1pod"}
+
+        expected_results: List[Dict[str, Any]] = []
+
+        ensure_query_produces_expected_output(self, query, args, expected_results)
+
+    def test_part_transmitter_module_communotron_data(self) -> None:
+        query = """
+        {
+            Part {
+                name @filter(op_name: "has_substring", value: ["$name_substr"])
+                     @output(out_name: "part_name")
+
+                out_Part_DataTransmitter {
+                    # ... on AntennaModule {
+                        power @output(out_name: "power")
+                        packet_size @output(out_name: "packet_size")
+                        packet_cost @output(out_name: "packet_cost")
+                        packet_interval @output(out_name: "packet_interval")
+                    # }
+                }
+            }
+        }
+        """
+        args: Dict[str, Any] = {"name_substr": "Communotron"}
+
+        expected_results: List[Dict[str, Any]] = [
+            {
+                "part_name": "Communotron HG-55",
+                "power": 15000000000.0,
+                "packet_size": 3.0,
+                "packet_cost": 20.0,
+                "packet_interval": 0.15,
+            },
+            {
+                "part_name": "Communotron 88-88",
+                "power": 100000000000.0,
+                "packet_size": 2.0,
+                "packet_cost": 20.0,
+                "packet_interval": 0.1,
+            },
+            {
+                "part_name": "Communotron DTS-M1",
+                "power": 2000000000.0,
+                "packet_size": 2.0,
+                "packet_cost": 12.0,
+                "packet_interval": 0.35,
+            },
+            {
+                "part_name": "Communotron 16",
+                "power": 500000.0,
+                "packet_size": 2.0,
+                "packet_cost": 12.0,
+                "packet_interval": 0.6,
+            },
+            {
+                "part_name": "Communotron 16-S",
+                "power": 500000.0,
+                "packet_size": 2.0,
+                "packet_cost": 12.0,
+                "packet_interval": 0.6,
+            },
+        ]
+
+        ensure_query_produces_expected_output(self, query, args, expected_results)
+
+    def test_part_transmitter_module_communotron_coercion_does_not_change_results(self) -> None:
+        query = """
+        {
+            Part {
+                name @filter(op_name: "has_substring", value: ["$name_substr"])
+                     @output(out_name: "part_name")
+
+                out_Part_DataTransmitter {
+                    ... on AntennaModule {
+                        power @output(out_name: "power")
+                        packet_size @output(out_name: "packet_size")
+                        packet_cost @output(out_name: "packet_cost")
+                        packet_interval @output(out_name: "packet_interval")
+                    }
+                }
+            }
+        }
+        """
+        args: Dict[str, Any] = {"name_substr": "Communotron"}
+
+        expected_results: List[Dict[str, Any]] = [
+            {
+                "part_name": "Communotron HG-55",
+                "power": 15000000000.0,
+                "packet_size": 3.0,
+                "packet_cost": 20.0,
+                "packet_interval": 0.15,
+            },
+            {
+                "part_name": "Communotron 88-88",
+                "power": 100000000000.0,
+                "packet_size": 2.0,
+                "packet_cost": 20.0,
+                "packet_interval": 0.1,
+            },
+            {
+                "part_name": "Communotron DTS-M1",
+                "power": 2000000000.0,
+                "packet_size": 2.0,
+                "packet_cost": 12.0,
+                "packet_interval": 0.35,
+            },
+            {
+                "part_name": "Communotron 16",
+                "power": 500000.0,
+                "packet_size": 2.0,
+                "packet_cost": 12.0,
+                "packet_interval": 0.6,
+            },
+            {
+                "part_name": "Communotron 16-S",
+                "power": 500000.0,
+                "packet_size": 2.0,
+                "packet_cost": 12.0,
+                "packet_interval": 0.6,
+            },
+        ]
+
+        ensure_query_produces_expected_output(self, query, args, expected_results)

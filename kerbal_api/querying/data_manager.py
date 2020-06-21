@@ -1,5 +1,5 @@
 from os import path
-from typing import Any, Dict, List, Type, TypeVar
+from typing import Any, Dict, List, Optional, Type, TypeVar
 
 from ..cfg_parser.coercing_reads import read_bool, read_float, read_raw, read_str
 from ..cfg_parser.file_finder import get_cfg_files_recursively
@@ -236,3 +236,74 @@ def get_default_resources_for_part(
         resource_name_key = cfg_key + (("name", 0),)
 
     return results
+
+
+def get_data_transmitter_for_part(
+    data_manager: KerbalDataManager, token: KerbalConfigToken,
+) -> List[KerbalConfigToken]:
+    assert token.type_name == "Part"
+
+    data_transmitter: Optional[KerbalConfigToken] = None
+
+    parsed_cfg_file = data_manager.parsed_cfg_files[token.from_cfg_file_path]
+
+    cfg_key_base = token.from_cfg_root
+
+    counter = 0
+    cfg_key_root = cfg_key_base + (("MODULE", counter),)
+    module_name_key = cfg_key_root + (("name", 0),)
+
+    while module_name_key in parsed_cfg_file:
+        if read_str(parsed_cfg_file, module_name_key) == "ModuleDataTransmitter":
+            assert (
+                data_transmitter is None
+            ), f"Unexpectedly found part with multiple transmitter modules: {token}"
+
+            transmitter_type_mapping = {
+                "INTERNAL": "InternalTransmitterModule",
+                "DIRECT": "DirectAntennaModule",
+                "RELAY": "RelayAntennaModule",
+            }
+            transmitter_type_key = cfg_key_root + (("antennaType", 0),)
+            transmitter_type_value = read_str(parsed_cfg_file, transmitter_type_key)
+
+            type_name = transmitter_type_mapping[transmitter_type_value]
+
+            assert (
+                read_str(parsed_cfg_file, cfg_key_root + (("requiredResource", 0),))
+                == "ElectricCharge"
+            ), f"Unexpectedly found a transmitter that does not use electricity: {token}"
+
+            content: Dict[str, Any] = {
+                "power": read_float(parsed_cfg_file, cfg_key_root + (("antennaPower", 0),)),
+                "packet_size": read_float(parsed_cfg_file, cfg_key_root + (("packetSize", 0),)),
+                "packet_cost": read_float(
+                    parsed_cfg_file, cfg_key_root + (("packetResourceCost", 0),)
+                ),
+                "packet_interval": read_float(
+                    parsed_cfg_file, cfg_key_root + (("packetInterval", 0),)
+                ),
+            }
+            content.update(
+                {
+                    # Derived fields, for user convenience.
+                    "transmission_speed": content["packet_size"] / content["packet_interval"],
+                    "electricity_per_mit": content["packet_cost"] / content["packet_size"],
+                    "electricity_per_second": content["packet_cost"] / content["packet_interval"],
+                }
+            )
+
+            data_transmitter = KerbalConfigToken(
+                type_name, content, {}, token.from_cfg_file_path, cfg_key_root
+            )
+
+        counter += 1
+        cfg_key_root = cfg_key_base + (("MODULE", counter),)
+        module_name_key = cfg_key_root + (("name", 0),)
+
+    if data_transmitter is not None:
+        # The contract of these functions as used in the interpreter requires an iterable.
+        # We just happen to know that the iterable is always either empty or of size 1.
+        return [data_transmitter]
+    else:
+        return []

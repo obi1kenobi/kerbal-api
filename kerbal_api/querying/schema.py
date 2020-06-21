@@ -60,6 +60,7 @@ type Part {
     max_temp_tolerance: Float  # expressed in Kelvin, part explodes if above this temp
 
     out_Part_EngineModule: [EngineModule]
+    out_Part_DataTransmitter: [DataTransmitterModule]
     out_Part_HasDefaultResource: [ContainedResource]
     out_Part_RequiredTechnology: [Technology]
 }
@@ -70,6 +71,66 @@ type EngineModule {
     throttleable: Boolean  # e.g., solid boosters cannot be throttled down
     isp_vacuum: Float
     isp_at_1atm: Float
+}
+
+interface DataTransmitterModule {
+    power: Float
+    packet_size: Float  # measured in Mits
+    packet_cost: Float  # measured in electricity cost per packet
+    packet_interval: Float  # measured in seconds a packet takes to transmit
+
+    # Derived fields, for user convenience.
+    transmission_speed: Float  # = packet_size / packet_interval, measured in Mits per second
+    electricity_per_mit: Float  # = packet_cost / packet_size
+    electricity_per_second: Float  # = packet_cost / packet_interval, cost per second transmitting
+}
+
+type InternalTransmitterModule implements DataTransmitterModule {
+    power: Float
+    packet_size: Float  # measured in Mits
+    packet_cost: Float  # measured in electricity cost per packet
+    packet_interval: Float  # measured in seconds a packet takes to transmit
+
+    # Derived fields, for user convenience.
+    transmission_speed: Float  # = packet_size / packet_interval, measured in Mits per second
+    electricity_per_mit: Float  # = packet_cost / packet_size
+    electricity_per_second: Float  # = packet_cost / packet_interval, cost per second transmitting
+}
+
+interface AntennaModule implements DataTransmitterModule {
+    power: Float
+    packet_size: Float  # measured in Mits
+    packet_cost: Float  # measured in electricity cost per packet
+    packet_interval: Float  # measured in seconds a packet takes to transmit
+
+    # Derived fields, for user convenience.
+    transmission_speed: Float  # = packet_size / packet_interval, measured in Mits per second
+    electricity_per_mit: Float  # = packet_cost / packet_size
+    electricity_per_second: Float  # = packet_cost / packet_interval, cost per second transmitting
+}
+
+type DirectAntennaModule implements AntennaModule & DataTransmitterModule {
+    power: Float
+    packet_size: Float  # measured in Mits
+    packet_cost: Float  # measured in electricity cost per packet
+    packet_interval: Float  # measured in seconds a packet takes to transmit
+
+    # Derived fields, for user convenience.
+    transmission_speed: Float  # = packet_size / packet_interval, measured in Mits per second
+    electricity_per_mit: Float  # = packet_cost / packet_size
+    electricity_per_second: Float  # = packet_cost / packet_interval, cost per second transmitting
+}
+
+type RelayAntennaModule implements AntennaModule & DataTransmitterModule {
+    power: Float
+    packet_size: Float  # measured in Mits
+    packet_cost: Float  # measured in electricity cost per packet
+    packet_interval: Float  # measured in seconds a packet takes to transmit
+
+    # Derived fields, for user convenience.
+    transmission_speed: Float  # = packet_size / packet_interval, measured in Mits per second
+    electricity_per_mit: Float  # = packet_cost / packet_size
+    electricity_per_second: Float  # = packet_cost / packet_interval, cost per second transmitting
 }
 
 type ContainedResource {

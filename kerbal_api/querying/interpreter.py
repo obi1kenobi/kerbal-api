@@ -1,10 +1,11 @@
-from typing import Any, Dict, Iterable, Tuple
+from typing import Any, Dict, Iterable, Set, Tuple
 
 from graphql_compiler.interpreter import DataContext, InterpreterAdapter
 from graphql_compiler.interpreter.typedefs import EdgeInfo
 
 from .data_manager import (
     KerbalDataManager,
+    get_data_transmitter_for_part,
     get_default_resources_for_part,
     get_engine_modules_for_part,
 )
@@ -54,6 +55,7 @@ class KerbalDataAdapter(InterpreterAdapter[KerbalToken]):
         edge_handlers = {
             ("Part", ("out", "Part_EngineModule")): get_engine_modules_for_part,
             ("Part", ("out", "Part_HasDefaultResource")): get_default_resources_for_part,
+            ("Part", ("out", "Part_DataTransmitter")): get_data_transmitter_for_part,
             ("Part", ("out", "Part_RequiredTechnology")): (
                 lambda data_manager, token: [
                     data_manager.technologies_by_id[tech_id]
@@ -102,4 +104,27 @@ class KerbalDataAdapter(InterpreterAdapter[KerbalToken]):
         coerce_to_type_name: str,
         **hints: Dict[str, Any],
     ) -> Iterable[Tuple[DataContext[KerbalToken], bool]]:
-        raise NotImplementedError()
+        # Tuple (current_known_type, attempted_coercion_type) -> set of concrete types for which
+        # the coercion is successful. The attempted coercion type may be concrete or abstract;
+        # if abstract then all concrete types that are descended from it are in the value set.
+        coercion_table: Dict[Tuple[str, str], Set[str]] = {
+            ("DataTransmitterModule", "InternalTransmitterModule"): {"InternalTransmitterModule"},
+            ("DataTransmitterModule", "AntennaModule"): {
+                "DirectAntennaModule",
+                "RelayAntennaModule",
+            },
+            ("AntennaModule", "DirectAntennaModule"): {"DirectAntennaModule"},
+            ("AntennaModule", "RelayAntennaModule"): {"RelayAntennaModule"},
+        }
+
+        for data_context in data_contexts:
+            token = data_context.current_token
+
+            can_coerce = False
+            if token is not None:
+                # Getting a KeyError here means that the coercion table needs to be updated
+                # to account for more type conversions that the schema allows to occur.
+                allowed_types = coercion_table[(current_type_name, coerce_to_type_name)]
+                can_coerce = token.type_name in allowed_types
+
+            yield (data_context, can_coerce)
