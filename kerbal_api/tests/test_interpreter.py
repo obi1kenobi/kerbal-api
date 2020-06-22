@@ -1,6 +1,8 @@
 from typing import Any, ClassVar, Dict, List
 from unittest import TestCase
 
+import pytest
+
 from ..querying import KerbalDataAdapter, execute_query, get_default_adapter
 
 
@@ -656,12 +658,10 @@ class TestInterpreter(TestCase):
                      @output(out_name: "part_name")
 
                 out_Part_DataTransmitter {
-                    # ... on AntennaModule {
-                        power @output(out_name: "power")
-                        packet_size @output(out_name: "packet_size")
-                        packet_cost @output(out_name: "packet_cost")
-                        packet_interval @output(out_name: "packet_interval")
-                    # }
+                    power @output(out_name: "power")
+                    packet_size @output(out_name: "packet_size")
+                    packet_cost @output(out_name: "packet_cost")
+                    packet_interval @output(out_name: "packet_interval")
                 }
             }
         }
@@ -705,6 +705,32 @@ class TestInterpreter(TestCase):
                 "packet_interval": 0.6,
             },
         ]
+
+        ensure_query_produces_expected_output(self, query, args, expected_results)
+
+    def test_part_transmitter_module_communotron_internal_transmitter_coercion_has_no_results(
+        self,
+    ) -> None:
+        query = """
+        {
+            Part {
+                name @filter(op_name: "has_substring", value: ["$name_substr"])
+                     @output(out_name: "part_name")
+
+                out_Part_DataTransmitter {
+                    ... on InternalTransmitterModule {
+                        power @output(out_name: "power")
+                        packet_size @output(out_name: "packet_size")
+                        packet_cost @output(out_name: "packet_cost")
+                        packet_interval @output(out_name: "packet_interval")
+                    }
+                }
+            }
+        }
+        """
+        args: Dict[str, Any] = {"name_substr": "Communotron"}
+
+        expected_results: List[Dict[str, Any]] = []
 
         ensure_query_produces_expected_output(self, query, args, expected_results)
 
@@ -767,3 +793,93 @@ class TestInterpreter(TestCase):
         ]
 
         ensure_query_produces_expected_output(self, query, args, expected_results)
+
+    def test_unresearchable_part_has_no_required_technology(
+        self,
+    ) -> None:
+        query = """
+        {
+            Part {
+                internal_name @filter(op_name: "=", value: ["$name"])
+                name @output(out_name: "part_name")
+
+                out_Part_RequiredTechnology @optional {
+                    name @output(out_name: "tech_required")
+                }
+            }
+        }
+        """
+        args: Dict[str, Any] = {"name": "PotatoRoid"}
+
+        expected_results: List[Dict[str, Any]] = [
+            {
+                "part_name": "A potato like rock",
+                "tech_required": None,
+            }
+        ]
+
+        ensure_query_produces_expected_output(self, query, args, expected_results)
+
+    @pytest.mark.xfail(reason="Bug in the underlying GraphQL compiler interpreter prototype.")
+    def test_mandatory_traversal_after_optional_traversal(
+        self,
+    ) -> None:
+        query = """
+        {
+            Part {
+                internal_name @filter(op_name: "=", value: ["$name"])
+                name @output(out_name: "part_name")
+
+                out_Part_HasDefaultResource @optional {
+                    out_ContainedResource_Resource {
+                        name @output(out_name: "contained_resource")
+                    }
+                }
+            }
+        }
+        """
+        args: Dict[str, Any] = {"name": "PotatoRoid"}
+
+        expected_results: List[Dict[str, Any]] = [
+            {
+                "part_name": "A potato like rock",
+                "contained_resource": None,
+            }
+        ]
+
+        ensure_query_produces_expected_output(self, query, args, expected_results)
+
+
+    def test_fetch_every_edge_for_all_parts_does_not_error(self) -> None:
+        query = """
+        {
+            Part {
+                name @output(out_name: "part_name")
+
+                out_Part_DataTransmitter @optional {
+                    power @output(out_name: "transmitter_power")
+                }
+                out_Part_EngineModule @optional {
+                    max_thrust @output(out_name: "engine_max_thrust")
+                }
+                out_Part_HasDefaultResource @optional {
+                    out_ContainedResource_Resource {
+                        name @output(out_name: "contained_resource")
+                    }
+                }
+                out_Part_RequiredTechnology @optional {
+                    name @output(out_name: "required_tech")
+                }
+            }
+        }
+        """
+        args: Dict[str, Any] = {}
+
+        # We are testing to make sure that looking up all of the above info does not produce
+        # any errors, especially with regard to edge cases about special-cased parts like
+        # the potato-asteroid, which is unresearchable and cannot be added to craft in the VAB/SPH.
+        #
+        # execute_query() returns a generator and lazily computes results. We have to drain the
+        # generator to complete the execution, even though we don't care about the results.
+        for _ in execute_query(self.adapter, query, args):
+            pass

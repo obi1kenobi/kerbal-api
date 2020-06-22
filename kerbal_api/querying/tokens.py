@@ -58,7 +58,13 @@ def make_part_token(cfg_file_path: str, part_config: ParsedCfgFile) -> Optional[
 
     tech_required_key = base_key + (("TechRequired", 0),)
     if tech_required_key in part_config:
-        foreign_keys["tech_required"].append(read_str(part_config, tech_required_key))
+        tech_required = read_str(part_config, tech_required_key)
+
+        # The PotatoRoid has the below invalid tech name key set.
+        # Instead of pretending it has a required tech that doesn't exist,
+        # make it not have a required tech instead.
+        if tech_required != "Unresearcheable":
+            foreign_keys["tech_required"].append(tech_required)
 
     return KerbalConfigToken(type_name, content, foreign_keys, cfg_file_path, base_key)
 
