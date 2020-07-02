@@ -55,9 +55,40 @@ class TestInterpreter(TestCase):
             },
             {"part_name": "A potato like rock", "internal_name": "PotatoRoid", "dry_mass": 150.0,},
             {
+                "part_name": "A potato like comet",
+                "internal_name": "PotatoComet",
+                "dry_mass": 150.0,
+            },
+            {
                 "part_name": "Kerbodyne S4-512 Fuel Tank",
                 "internal_name": "Size4_Tank_04",
                 "dry_mass": 32.0,
+            },
+        ]
+
+        ensure_query_produces_expected_output(self, query, args, expected_results)
+
+    def test_potato_parts_can_be_looked_up(self) -> None:
+        query = """
+        {
+            Part {
+                name @output(out_name: "part_name")
+                internal_name @filter(op_name: "has_substring", value: ["$internal_name_substr"])
+                              @output(out_name: "internal_name")
+                dry_mass @output(out_name: "dry_mass")
+            }
+        }
+        """
+        args: Dict[str, Any] = {
+            "internal_name_substr": "Potato",
+        }
+
+        expected_results = [
+            {"part_name": "A potato like rock", "internal_name": "PotatoRoid", "dry_mass": 150.0,},
+            {
+                "part_name": "A potato like comet",
+                "internal_name": "PotatoComet",
+                "dry_mass": 150.0,
             },
         ]
 
@@ -794,9 +825,7 @@ class TestInterpreter(TestCase):
 
         ensure_query_produces_expected_output(self, query, args, expected_results)
 
-    def test_unresearchable_part_has_no_required_technology(
-        self,
-    ) -> None:
+    def test_unresearchable_part_has_no_required_technology(self,) -> None:
         query = """
         {
             Part {
@@ -812,18 +841,13 @@ class TestInterpreter(TestCase):
         args: Dict[str, Any] = {"name": "PotatoRoid"}
 
         expected_results: List[Dict[str, Any]] = [
-            {
-                "part_name": "A potato like rock",
-                "tech_required": None,
-            }
+            {"part_name": "A potato like rock", "tech_required": None,}
         ]
 
         ensure_query_produces_expected_output(self, query, args, expected_results)
 
     @pytest.mark.xfail(reason="Bug in the underlying GraphQL compiler interpreter prototype.")
-    def test_mandatory_traversal_after_optional_traversal(
-        self,
-    ) -> None:
+    def test_mandatory_traversal_after_optional_traversal(self,) -> None:
         query = """
         {
             Part {
@@ -841,14 +865,10 @@ class TestInterpreter(TestCase):
         args: Dict[str, Any] = {"name": "PotatoRoid"}
 
         expected_results: List[Dict[str, Any]] = [
-            {
-                "part_name": "A potato like rock",
-                "contained_resource": None,
-            }
+            {"part_name": "A potato like rock", "contained_resource": None,}
         ]
 
         ensure_query_produces_expected_output(self, query, args, expected_results)
-
 
     def test_fetch_every_edge_for_all_parts_does_not_error(self) -> None:
         query = """

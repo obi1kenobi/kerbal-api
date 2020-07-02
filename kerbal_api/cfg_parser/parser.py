@@ -1,3 +1,4 @@
+import re
 import string
 from typing import List, Optional, Set, Tuple
 
@@ -7,6 +8,8 @@ from .typedefs import CfgKey, ParsedCfgFile
 
 # TODO: use a proper parsing library to create a "real" parser,
 #       instead of this hacked-together monstrosity.
+
+_closed_curly_with_optional_comma = re.compile(r"\}[ ]*,?[ ]*")
 
 
 def parse_cfg_file(file_path: str,) -> Optional[ParsedCfgFile]:
@@ -55,7 +58,7 @@ def parse_cfg_file(file_path: str,) -> Optional[ParsedCfgFile]:
             continue
         elif line.startswith("}"):
             current_section.pop()
-            while line != "}":
+            while not _closed_curly_with_optional_comma.match(line):
                 line = line.split("}", 1)[1].strip()
                 if line.startswith("}"):
                     current_section.pop()
